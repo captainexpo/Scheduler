@@ -89,6 +89,7 @@ class Student:
                 self.half_courses[i] = None
 
     def __str__(self):
+        #
         return f"{self.first_name} {self.last_name}({self.grade}){self.available_times}"
 
 
