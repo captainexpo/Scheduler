@@ -32,7 +32,7 @@ def load_student(row: list[str]) -> Student:
     last_name = row[1]
     grade = row[2]
     course_type_pref = row[3]
-    available_times = (row[4] == "Morning", row[4] == "Afternoon")
+    available_times = (row[4] != "Morning", row[4] != "Afternoon")
     morning_prefs = row[5:10]
     afternoon_prefs = row[10:15]
     full_prefs = row[15:20]

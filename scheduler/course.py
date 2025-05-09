@@ -1,5 +1,6 @@
 from enum import Enum
 from scheduler.student import Student
+import logging
 
 
 class CourseType(Enum):
@@ -39,17 +40,38 @@ class Course:
         return len(self.students) >= self.capacity
 
     def add_student(self, student: Student) -> bool:
+        if student in self.students:
+            logging.warning(
+                f"Warning: {student} is already in {self.name}({self.teacher})"
+            )
+            return False
         self.students.append(student)
         return True
 
     def remove_student(self, student: Student) -> bool:
+        if student not in self.students:
+            logging.warning(
+                f"Warning: {student} not found in {self.name}({self.teacher})"
+            )
+            return False
         self.students.remove(student)
         return True
+
+    def sort_by_preference_position(self) -> None:
+        self.students.sort(
+            key=lambda student: student.prefs[self.type].index(self.name)
+        )
 
     def __str__(self) -> str:
         return f"""{self.name}({self.teacher}){{
             Type: {self.type.name},
             Capacity: {self.capacity},
             Students: {len(self.students)}/{self.capacity},
-            Student List: {[student.first_name + " " + student.last_name for student in self.students]}
+            Student List: {", ".join([student.first_name + " " + student.last_name for student in self.students])}
 }}"""
+
+    def short_str(self) -> str:
+        return f"{self.name}({self.teacher}){self.type.name}"
+
+    def __repr__(self) -> str:
+        return f"{self.name}({self.teacher}){self.type.name}"
