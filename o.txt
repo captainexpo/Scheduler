@@ -1,0 +1,399 @@
+DEBUG:root:Starting sorting process.
+DEBUG:root:Initializing student Smith.
+DEBUG:root:Moving student Smith to the next preference.
+DEBUG:root:Added student Taylor Smith(9)(True, True) to Geography(Peter Gray)
+DEBUG:root:Adding morning course Geography(Peter Gray) to Taylor Smith
+DEBUG:root:Student Smith added to morning course Geography.
+DEBUG:root:Added student Taylor Smith(9)(True, True) to French(Isabelle Dupont)
+DEBUG:root:Adding afternoon course French(Isabelle Dupont) to Taylor Smith
+DEBUG:root:Student Smith added to afternoon course French.
+DEBUG:root:Initializing student Lewis.
+DEBUG:root:Moving student Lewis to the next preference.
+WARNING:root:Warning: Riley Lewis(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Riley Lewis(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Riley Lewis(9)(True, True) to Drama(Emma Watson)
+DEBUG:root:Adding morning course Drama(Emma Watson) to Riley Lewis
+ERROR:root:Error: Riley Lewis already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 1/19,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Lewis added to morning course Drama.
+DEBUG:root:Added student Riley Lewis(9)(True, True) to Sociology(Olivia Martinez)
+DEBUG:root:Adding afternoon course Sociology(Olivia Martinez) to Riley Lewis
+ERROR:root:Error: Riley Lewis already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Lewis added to afternoon course Sociology.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Riley Brown(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Riley Brown(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Riley Brown(10)(True, True) to History(Emily Davis)
+DEBUG:root:Student Brown added to course History.
+DEBUG:root:Initializing student Jones.
+DEBUG:root:Moving student Jones to the next preference.
+WARNING:root:Warning: Alex Jones(11)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Jones(11)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Jones(11)(True, True) to Geography(Peter Gray)
+DEBUG:root:Adding morning course Geography(Peter Gray) to Alex Jones
+ERROR:root:Error: Alex Jones already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Jones added to morning course Geography.
+DEBUG:root:Added student Alex Jones(11)(True, True) to Sociology(Olivia Martinez)
+DEBUG:root:Adding afternoon course Sociology(Olivia Martinez) to Alex Jones
+ERROR:root:Error: Alex Jones already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Jones added to afternoon course Sociology.
+DEBUG:root:Initializing student Johnson.
+DEBUG:root:Moving student Johnson to the next preference.
+WARNING:root:Warning: Skyler Johnson(12)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Skyler Johnson(12)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Skyler Johnson(12)(True, True) to Physics(Anna White)
+DEBUG:root:Adding morning course Physics(Anna White) to Skyler Johnson
+ERROR:root:Error: Skyler Johnson already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Johnson added to morning course Physics.
+DEBUG:root:Added student Skyler Johnson(12)(True, True) to Economics(Paul Adams)
+DEBUG:root:Adding afternoon course Economics(Paul Adams) to Skyler Johnson
+ERROR:root:Error: Skyler Johnson already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Johnson added to afternoon course Economics.
+DEBUG:root:Initializing student Jones.
+DEBUG:root:Moving student Jones to the next preference.
+WARNING:root:Warning: Alex Jones(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Jones(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Jones(10)(True, True) to Drama(Emma Watson)
+DEBUG:root:Adding morning course Drama(Emma Watson) to Alex Jones
+ERROR:root:Error: Alex Jones already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Jones added to morning course Drama.
+DEBUG:root:Added student Alex Jones(10)(True, True) to Economics(Paul Adams)
+DEBUG:root:Adding afternoon course Economics(Paul Adams) to Alex Jones
+ERROR:root:Error: Alex Jones already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Jones added to afternoon course Economics.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Casey Brown(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Casey Brown(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Casey Brown(9)(True, True) to Philosophy(Rebecca Carter)
+DEBUG:root:Student Brown added to course Philosophy.
+DEBUG:root:Initializing student Smith.
+DEBUG:root:Moving student Smith to the next preference.
+WARNING:root:Warning: Alex Smith(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Smith(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Smith(10)(True, True) to History(Emily Davis)
+DEBUG:root:Student Smith added to course History.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Alex Brown(10)(False, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Brown(10)(False, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Brown(10)(False, True) to Sociology(Olivia Martinez)
+DEBUG:root:Adding afternoon course Sociology(Olivia Martinez) to Alex Brown
+ERROR:root:Error: Alex Brown already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Brown added to afternoon course Sociology.
+DEBUG:root:Initializing student Lee.
+DEBUG:root:Moving student Lee to the next preference.
+WARNING:root:Warning: Taylor Lee(9)(False, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Taylor Lee(9)(False, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Taylor Lee(9)(False, True) to Philosophy(Rebecca Carter)
+DEBUG:root:Student Lee added to course Philosophy.
+DEBUG:root:Initializing student Jones.
+DEBUG:root:Moving student Jones to the next preference.
+WARNING:root:Warning: Jordan Jones(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Jordan Jones(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Jordan Jones(10)(True, True) to Biology(Laura Green)
+DEBUG:root:Student Jones added to course Biology.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Emerson Brown(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Emerson Brown(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Emerson Brown(10)(True, True) to Philosophy(Rebecca Carter)
+DEBUG:root:Student Brown added to course Philosophy.
+DEBUG:root:Initializing student Martinez.
+DEBUG:root:Moving student Martinez to the next preference.
+WARNING:root:Warning: Drew Martinez(12)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Drew Martinez(12)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Drew Martinez(12)(True, True) to Music(Chris Lee)
+DEBUG:root:Student Martinez added to course Music.
+DEBUG:root:Initializing student Jones.
+DEBUG:root:Moving student Jones to the next preference.
+WARNING:root:Warning: Taylor Jones(11)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Taylor Jones(11)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Taylor Jones(11)(True, True) to Computer Science(Michael Scott)
+DEBUG:root:Student Jones added to course Computer Science.
+DEBUG:root:Initializing student Martinez.
+DEBUG:root:Moving student Martinez to the next preference.
+WARNING:root:Warning: Casey Martinez(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Casey Martinez(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Casey Martinez(9)(True, True) to Music(Chris Lee)
+DEBUG:root:Student Martinez added to course Music.
+DEBUG:root:Initializing student Lewis.
+DEBUG:root:Moving student Lewis to the next preference.
+WARNING:root:Warning: Morgan Lewis(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Morgan Lewis(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Morgan Lewis(9)(True, True) to Physics(Anna White)
+DEBUG:root:Adding morning course Physics(Anna White) to Morgan Lewis
+ERROR:root:Error: Morgan Lewis already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Lewis added to morning course Physics.
+DEBUG:root:Added student Morgan Lewis(9)(True, True) to Art(Sarah Johnson)
+DEBUG:root:Adding afternoon course Art(Sarah Johnson) to Morgan Lewis
+ERROR:root:Error: Morgan Lewis already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 1/18,
+            Student List: Taylor Smith
+}
+DEBUG:root:Student Lewis added to afternoon course Art.
+DEBUG:root:Initializing student Williams.
+DEBUG:root:Moving student Williams to the next preference.
+WARNING:root:Warning: Skyler Williams(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Skyler Williams(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Skyler Williams(9)(True, True) to Drama(Emma Watson)
+DEBUG:root:Adding morning course Drama(Emma Watson) to Skyler Williams
+ERROR:root:Error: Skyler Williams already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Williams added to morning course Drama.
+DEBUG:root:Added student Skyler Williams(9)(True, True) to French(Isabelle Dupont)
+DEBUG:root:Adding afternoon course French(Isabelle Dupont) to Skyler Williams
+ERROR:root:Error: Skyler Williams already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Williams added to afternoon course French.
+DEBUG:root:Initializing student Lewis.
+DEBUG:root:Moving student Lewis to the next preference.
+WARNING:root:Warning: Riley Lewis(12)(False, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Riley Lewis(12)(False, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Riley Lewis(12)(False, True) to Spanish(Carlos Rivera)
+DEBUG:root:Student Lewis added to course Spanish.
+DEBUG:root:Initializing student Garcia.
+DEBUG:root:Moving student Garcia to the next preference.
+WARNING:root:Warning: Casey Garcia(10)(True, False) not found in Geography(Peter Gray)
+WARNING:root:Warning: Casey Garcia(10)(True, False) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Casey Garcia(10)(True, False) to Music(Chris Lee)
+DEBUG:root:Student Garcia added to course Music.
+DEBUG:root:Initializing student Lewis.
+DEBUG:root:Moving student Lewis to the next preference.
+WARNING:root:Warning: Alex Lewis(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Lewis(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Lewis(9)(True, True) to Psychology(James Wilson)
+DEBUG:root:Adding morning course Psychology(James Wilson) to Alex Lewis
+ERROR:root:Error: Alex Lewis already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Lewis added to morning course Psychology.
+DEBUG:root:Added student Alex Lewis(9)(True, True) to Chemistry(David Black)
+DEBUG:root:Adding afternoon course Chemistry(David Black) to Alex Lewis
+ERROR:root:Error: Alex Lewis already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Lewis added to afternoon course Chemistry.
+DEBUG:root:Initializing student Lee.
+DEBUG:root:Moving student Lee to the next preference.
+WARNING:root:Warning: Alex Lee(10)(False, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Alex Lee(10)(False, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Alex Lee(10)(False, True) to Physical Education(Tom Hardy)
+DEBUG:root:Adding afternoon course Physical Education(Tom Hardy) to Alex Lee
+ERROR:root:Error: Alex Lee already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Lee added to afternoon course Physical Education.
+DEBUG:root:Initializing student Garcia.
+DEBUG:root:Moving student Garcia to the next preference.
+WARNING:root:Warning: Casey Garcia(12)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Casey Garcia(12)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Casey Garcia(12)(True, True) to Psychology(James Wilson)
+DEBUG:root:Adding morning course Psychology(James Wilson) to Casey Garcia
+ERROR:root:Error: Casey Garcia already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Garcia added to morning course Psychology.
+DEBUG:root:Added student Casey Garcia(12)(True, True) to Physical Education(Tom Hardy)
+DEBUG:root:Adding afternoon course Physical Education(Tom Hardy) to Casey Garcia
+ERROR:root:Error: Casey Garcia already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Garcia added to afternoon course Physical Education.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Riley Brown(12)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Riley Brown(12)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Riley Brown(12)(True, True) to English(Mark Brown)
+DEBUG:root:Adding morning course English(Mark Brown) to Riley Brown
+ERROR:root:Error: Riley Brown already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Brown added to morning course English.
+DEBUG:root:Added student Riley Brown(12)(True, True) to Economics(Paul Adams)
+DEBUG:root:Adding afternoon course Economics(Paul Adams) to Riley Brown
+ERROR:root:Error: Riley Brown already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Brown added to afternoon course Economics.
+DEBUG:root:Initializing student Williams.
+DEBUG:root:Moving student Williams to the next preference.
+WARNING:root:Warning: Rowan Williams(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Rowan Williams(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Rowan Williams(10)(True, True) to Spanish(Carlos Rivera)
+DEBUG:root:Student Williams added to course Spanish.
+DEBUG:root:Initializing student Martinez.
+DEBUG:root:Moving student Martinez to the next preference.
+WARNING:root:Warning: Rowan Martinez(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Rowan Martinez(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Rowan Martinez(9)(True, True) to Psychology(James Wilson)
+DEBUG:root:Adding morning course Psychology(James Wilson) to Rowan Martinez
+ERROR:root:Error: Rowan Martinez already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Martinez added to morning course Psychology.
+DEBUG:root:Added student Rowan Martinez(9)(True, True) to Physical Education(Tom Hardy)
+DEBUG:root:Adding afternoon course Physical Education(Tom Hardy) to Rowan Martinez
+ERROR:root:Error: Rowan Martinez already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Martinez added to afternoon course Physical Education.
+DEBUG:root:Initializing student Jones.
+DEBUG:root:Moving student Jones to the next preference.
+WARNING:root:Warning: Jordan Jones(9)(False, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Jordan Jones(9)(False, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Jordan Jones(9)(False, True) to History(Emily Davis)
+DEBUG:root:Student Jones added to course History.
+DEBUG:root:Initializing student Lewis.
+DEBUG:root:Moving student Lewis to the next preference.
+WARNING:root:Warning: Skyler Lewis(10)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Skyler Lewis(10)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Skyler Lewis(10)(True, True) to Math(John Doe)
+DEBUG:root:Adding morning course Math(John Doe) to Skyler Lewis
+ERROR:root:Error: Skyler Lewis already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Lewis added to morning course Math.
+DEBUG:root:Added student Skyler Lewis(10)(True, True) to Sociology(Olivia Martinez)
+DEBUG:root:Adding afternoon course Sociology(Olivia Martinez) to Skyler Lewis
+ERROR:root:Error: Skyler Lewis already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 2/18,
+            Student List: Taylor Smith, Skyler Williams
+}
+DEBUG:root:Student Lewis added to afternoon course Sociology.
+DEBUG:root:Initializing student Clark.
+DEBUG:root:Moving student Clark to the next preference.
+WARNING:root:Warning: Rowan Clark(11)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Rowan Clark(11)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Rowan Clark(11)(True, True) to German(Hans Muller)
+DEBUG:root:Adding morning course German(Hans Muller) to Rowan Clark
+ERROR:root:Error: Rowan Clark already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Clark added to morning course German.
+DEBUG:root:Added student Rowan Clark(11)(True, True) to French(Isabelle Dupont)
+DEBUG:root:Adding afternoon course French(Isabelle Dupont) to Rowan Clark
+ERROR:root:Error: Rowan Clark already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 3/18,
+            Student List: Taylor Smith, Skyler Williams, Rowan Clark
+}
+DEBUG:root:Student Clark added to afternoon course French.
+DEBUG:root:Initializing student Brown.
+DEBUG:root:Moving student Brown to the next preference.
+WARNING:root:Warning: Rowan Brown(9)(True, True) not found in Geography(Peter Gray)
+WARNING:root:Warning: Rowan Brown(9)(True, True) not found in French(Isabelle Dupont)
+DEBUG:root:Added student Rowan Brown(9)(True, True) to German(Hans Muller)
+DEBUG:root:Adding morning course German(Hans Muller) to Rowan Brown
+ERROR:root:Error: Rowan Brown already has a morning course: Geography(Peter Gray){
+            Type: MORNING,
+            Capacity: 19,
+            Students: 2/19,
+            Student List: Taylor Smith, Alex Jones
+}
+DEBUG:root:Student Brown added to morning course German.
+DEBUG:root:Added student Rowan Brown(9)(True, True) to Sociology(Olivia Martinez)
+DEBUG:root:Adding afternoon course Sociology(Olivia Martinez) to Rowan Brown
+ERROR:root:Error: Rowan Brown already has an afternoon course: French(Isabelle Dupont){
+            Type: AFTERNOON,
+            Capacity: 18,
+            Students: 3/18,
+            Student List: Taylor Smith, Skyler Williams, Rowan Clark
+}
+DEBUG:root:Student Brown added to afternoon course Sociology.

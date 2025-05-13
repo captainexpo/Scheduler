@@ -46,6 +46,8 @@ class Course:
             )
             return False
         self.students.append(student)
+
+        logging.debug(f"Added student {student} to {self.name}({self.teacher})")
         return True
 
     def remove_student(self, student: Student) -> bool:
@@ -57,7 +59,7 @@ class Course:
         self.students.remove(student)
         return True
 
-    def sort_by_preference_position(self) -> None:
+    def sort_by_preference_position(self) -> list:
         self.students.sort(
             key=lambda student: student.prefs[self.type].index(self.name)
         )

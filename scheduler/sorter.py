@@ -2,95 +2,160 @@ from scheduler.data import RawData
 from scheduler.course import Course, CourseType
 from scheduler.student import Student
 import logging
+from typing import Union
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 class Sorter:
-    students: list[Student]
-    courses: list[Course]
-
-    # students get moved here if they can't fit in their preferences
-    unsorted_class: Course
-
-    student_pref_positions: dict[Student, int] = {}
-
     def __init__(self):
-        pass
+        self.students: list[Student] = []
+        self.courses: list[Course] = []
+        self.unsorted_class: Course = Course(
+            "Unsorted", "Unsorted", 999999, CourseType.FULL
+        )
+        self.student_pref_positions: dict[Student, Union[int, list[int]]] = {}
 
-    def move_student_to_next(self, student: Student) -> None:
-        """
-        Move the student to the next preference in their list of preferences.
-        If the student is already at the last preference, they are moved to the unsorted class.
-        """
-        logging.debug(f"Moving student {student.last_name} to the next preference.")
-        student.remove_courses()
+    def move_student_if_needed(self, student: Student) -> None:
         if student.course_type_pref == CourseType.FULL:
-            if self.student_pref_positions[student] >= len(
-                student.prefs[CourseType.FULL]
+            if student.full_course.is_over_capacity():
+                self.move_student_to_next(student)
+        else:
+            if (
+                student.available_times[0]
+                and student.half_courses[0].is_over_capacity()
             ):
-                # move to unsorted class
-                logging.debug(f"Student {student.last_name} moved to unsorted class.")
-                self.unsorted_class.add_student(student)
-                return
-            # move to next preference in full courses
-            self.student_pref_positions[student] += 1
-            c = student.prefs[CourseType.FULL][self.student_pref_positions[student]]
-            c.add_student(student)
-            student.full_course = c
-            logging.debug(f"Student {student.last_name} added to course {c.name}.")
+                student.half_courses[0].remove_student(student)
+                student.half_courses[0] = None
+                self.move_student_to_next(student, 0)
+            if (
+                student.available_times[1]
+                and student.half_courses[1].is_over_capacity()
+            ):
+                student.half_courses[1].remove_student(student)
+                student.half_courses[1] = None
+                self.move_student_to_next(student, 1)
+
+    def move_student_to_next(self, student: Student, time: int = -1) -> None:
+        logging.debug(
+            f"Moving student {student.last_name} to pref {self.student_pref_positions.get(student)}."
+        )
+
+        if time == -1:
+            student.remove_courses()
+
+        if student.course_type_pref == CourseType.FULL:
+            self._move_full_day_student(student)
+        else:
+            self._move_half_day_student(student, time)
+
+    def _move_full_day_student(self, student: Student) -> None:
+        prefs = student.prefs.get(CourseType.FULL, [])
+        current_index = self.student_pref_positions.get(student, -1) + 1
+        if current_index >= len(prefs):
+            logging.debug(
+                f"Student {student.last_name} moved to unsorted class (FULL)."
+            )
+            self.unsorted_class.add_student(student)
+            self.student_pref_positions[student] = current_index
             return
 
-        # half day students
-        if student.available_times[0]:
-            if self.student_pref_positions[student][0] >= len(
-                student.prefs[CourseType.MORNING]
-            ):
-                # move to unsorted class
-                logging.debug(f"Student {student.last_name} moved to unsorted class.")
-                self.unsorted_class.add_student(student)
-                return
-            # move to next preference in morning courses
-            self.student_pref_positions[student][0] += 1
-            c = student.prefs[CourseType.MORNING][
-                self.student_pref_positions[student][0]
-            ]
-            c.add_student(student)
-            student.add_course_morning(c)
-            logging.debug(
-                f"Student {student.last_name} added to morning course {c.name}."
+        course = prefs[current_index]
+        course.add_student(student)
+        student.add_course_full(course)
+        self.student_pref_positions[student] = current_index
+        logging.debug(f"Student {student.last_name} added to course {course.name}.")
+
+    def _move_half_day_student(self, student: Student, t: int = -1) -> None:
+        if isinstance(self.student_pref_positions[student], list) is False:
+            logging.warning(
+                f"Invalid student_pref_positions type for {student.last_name}"
             )
-        if student.available_times[1]:
-            if self.student_pref_positions[student][1] >= len(
-                student.prefs[CourseType.AFTERNOON]
-            ):
-                # move to unsorted class
-                logging.debug(f"Student {student.last_name} moved to unsorted class.")
-                self.unsorted_class.add_student(student)
-                return
-            # move to next preference in afternoon courses
-            self.student_pref_positions[student][1] += 1
-            c = student.prefs[CourseType.AFTERNOON][
-                self.student_pref_positions[student][1]
-            ]
-            c.add_student(student)
-            student.add_course_afternoon(c)
-            logging.debug(
-                f"Student {student.last_name} added to afternoon course {c.name}."
+            self.unsorted_class.add_student(student)
+            return
+
+        positions = self.student_pref_positions[student]
+        if not isinstance(positions, list) or len(positions) != 2:
+            logging.warning(
+                f"Malformed preference positions for student {student.last_name}"
             )
+            self.unsorted_class.add_student(student)
+            return
+
+        updated = self._assign_half_day_courses(student, positions, t)
+
+        if not updated:
+            logging.debug(
+                f"Student {student.last_name} moved to unsorted class (HALF)."
+            )
+            self.unsorted_class.add_student(student)
+
+    def _assign_half_day_courses(
+        self, student: Student, positions: list[int], t: int = -1
+    ) -> bool:
+        updated = False
+        for i, time in enumerate(["MORNING", "AFTERNOON"]):
+            if t == 0 and i == 1:
+                continue
+            if t == 1 and i == 0:
+                continue
+            if student.available_times[i]:
+                prefs = student.prefs.get(getattr(CourseType, time), [])
+                if not prefs:
+                    continue
+
+                pos = positions[i] + 1
+                if pos >= len(prefs):
+                    continue
+
+                course = prefs[pos]
+                course.add_student(student)
+
+                if time == "MORNING":
+                    student.add_course_morning(course)
+                else:
+                    student.add_course_afternoon(course)
+
+                positions[i] = pos
+                updated = True
+
+        return updated
+
+    def _sort_iteration(self) -> None:
+        logging.debug("Starting sort iteration.")
+        for student in self.students:
+            self.move_student_to_next(student)
 
     def sort(self, raw_data: RawData) -> None:
         logging.debug("Starting sorting process.")
         self.students = raw_data.students
         self.courses = raw_data.courses
-        self.unsorted_class = Course("Unsorted", "Unsorted", 999999, CourseType.FULL)
         self.unsorted_class.students = []
+
         self.student_pref_positions = {
             student: -1 if student.course_type_pref == CourseType.FULL else [-1, -1]
             for student in self.students
         }
 
-        # initialize classes
         for student in self.students:
             logging.debug(f"Initializing student {student.last_name}.")
             self.move_student_to_next(student)
+
+        def course_is_overpopulated(course: Course) -> bool:
+            return course.is_over_capacity() and course.num_students() > 0
+
+        for i in range(1):
+            # 2 iterations for now
+            for student in self.students:
+                try:
+                    self.move_student_if_needed(student)
+                except Exception as e:
+                    logging.error(f"Error moving student {student.last_name}: {e}")
+
+        logging.debug(
+            f"Sorting process completed. Total score: {sum([s.score() for s in self.students])}"
+        )
+
+    def get_raw_data(self) -> RawData:
+        logging.debug("Getting raw data.")
+        return RawData(self.students, self.courses + [self.unsorted_class])
