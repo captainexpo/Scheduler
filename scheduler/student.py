@@ -110,13 +110,12 @@ class Student:
         Calculates a 'happiness' score from 0 (unhappy) to 100 (perfect).
         """
         if self.course_type_pref == CourseType.FULL:
-            return index_def(self.prefs[CourseType.FULL], self.full_course, 0)
+            return index_def(self.prefs[CourseType.FULL], self.full_course, 6)
         else:
             return (
-                index_def(self.prefs[CourseType.MORNING], self.half_courses[0], 0)
-                + index_def(self.prefs[CourseType.AFTERNOON], self.half_courses[1], 0)
-                / 2
-            )
+                index_def(self.prefs[CourseType.MORNING], self.half_courses[0], 6)
+                + index_def(self.prefs[CourseType.AFTERNOON], self.half_courses[1], 6)
+            ) / 2
 
     def __str__(self):
         #
