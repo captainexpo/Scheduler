@@ -37,7 +37,7 @@ class Course:
         return len(self.students)
 
     def is_over_capacity(self) -> bool:
-        return len(self.students) >= self.capacity
+        return len(self.students) > self.capacity
 
     def add_student(self, student: Student) -> bool:
         if student in self.students:
@@ -60,16 +60,15 @@ class Course:
         return True
 
     def sort_by_preference_position(self) -> list:
-        self.students.sort(
-            key=lambda student: student.prefs[self.type].index(self.name)
-        )
+        self.students.sort(key=lambda student: student.prefs[self.type].index(self))
+        return self.students
 
     def __str__(self) -> str:
         return f"""{self.name}({self.teacher}){{
             Type: {self.type.name},
             Capacity: {self.capacity},
             Students: {len(self.students)}/{self.capacity},
-            Student List: {", ".join([student.first_name + " " + student.last_name for student in self.students])}
+            Student List: {", ".join([student.short_str() for student in self.students])}
 }}"""
 
     def short_str(self) -> str:

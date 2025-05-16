@@ -4,7 +4,7 @@ from scheduler.student import Student
 import logging
 from typing import Union
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 
 
 class Sorter:
@@ -121,11 +121,6 @@ class Sorter:
 
         return updated
 
-    def _sort_iteration(self) -> None:
-        logging.debug("Starting sort iteration.")
-        for student in self.students:
-            self.move_student_to_next(student)
-
     def sort(self, raw_data: RawData) -> None:
         logging.debug("Starting sorting process.")
         self.students = raw_data.students
@@ -144,18 +139,47 @@ class Sorter:
         def course_is_overpopulated(course: Course) -> bool:
             return course.is_over_capacity() and course.num_students() > 0
 
-        for i in range(1):
-            # 2 iterations for now
-            for student in self.students:
-                try:
-                    self.move_student_if_needed(student)
-                except Exception as e:
-                    logging.error(f"Error moving student {student.last_name}: {e}")
+        for i in range(250):
+            for course in self.courses:
+                if course_is_overpopulated(course):
+                    students = course.sort_by_preference_position()
+                    for student in students:
+                        try:
+                            self.move_student_if_needed(student)
+                        except Exception as e:
+                            logging.error(
+                                f"Error moving student {student.last_name}: {e}"
+                            )
 
-        logging.debug(
-            f"Sorting process completed. Total score: {sum([s.score() for s in self.students])}"
-        )
+            # for student in self.students:
+            #    try:
+            #        self.move_student_if_needed(student)
+            #    except Exception as e:
+            #        logging.error(f"Error moving student {student.last_name}: {e}")
+
+        total_score: int = 0
+        avg_score: float = 0
+        mode = [0 for _ in range(6)]
+        for student in self.students:
+            total_score += student.score()
+            avg_score += student.score() / len(self.students)
+            mode[student.position()] += 1
+        self.meta = {
+            "total_score": total_score,
+            "avg_score": round(avg_score, 2),
+            "mode": mode,
+            "students": len(self.students),
+            "courses": len(self.courses),
+            "overpopulated": [
+                course.name
+                for course in self.courses
+                if course_is_overpopulated(course)
+            ],
+            "unsorted": self.unsorted_class.num_students(),
+        }
 
     def get_raw_data(self) -> RawData:
         logging.debug("Getting raw data.")
-        return RawData(self.students, self.courses + [self.unsorted_class])
+        d = RawData(self.students, self.courses + [self.unsorted_class])
+        d.meta = self.meta
+        return d

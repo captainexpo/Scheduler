@@ -1,3 +1,7 @@
+# Ignore other files
+.vscode/
+
+
 # Ignore Python bytecode files
 *.pyc
 *.pyo
@@ -6,6 +10,7 @@ __pycache__/
 # Ignore virtual environment directories
 env/
 venv/
+.venv/
 ENV/
 VENV/
 
@@ -45,3 +50,4 @@ dist/
 *.egg-info/
 out.txt
 *.bak
+data/

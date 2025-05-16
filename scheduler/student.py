@@ -133,9 +133,27 @@ class Student:
                 pass
         return score
 
+    def position(self) -> int:
+        position = 0
+        if self.full_course is not None:
+            return 5 - self.prefs[CourseType.FULL].index(self.full_course)
+        a = 0
+        if self.half_courses[0] is not None:
+            a += 1
+            position += 5 - self.prefs[CourseType.MORNING].index(self.half_courses[0])
+        if self.half_courses[1] is not None:
+            a += 1
+            position += 5 - self.prefs[CourseType.AFTERNOON].index(self.half_courses[1])
+        return position // a
+
     def __str__(self):
         #
-        return f"{self.first_name} {self.last_name}({self.grade}){self.available_times}"
+        return (
+            f"{self.first_name} {self.last_name}({self.grade})(pos {self.position()})"
+        )
+
+    def short_str(self):
+        return f"{self.first_name}_{self.last_name}(pos {self.position()})"
 
 
 if True:
