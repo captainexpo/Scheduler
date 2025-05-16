@@ -6,32 +6,32 @@ import random
 # Initialize Faker
 fake = Faker()
 
+
 # Define available preferences
-morning_courses = [
-    "Geography",
-    "Psychology",
-    "Physics",
-    "Drama",
-    "Math",
-    "English",
-    "German",
-]
-afternoon_courses = [
-    "French",
-    "Economics",
-    "Physical Education",
-    "Chemistry",
-    "Science",
-    "Art",
-]
-full_courses = [
-    "History",
-    "Biology",
-    "Computer Science",
-    "Music",
-    "Philosophy",
-    "Spanish",
-]
+morning_courses = []
+afternoon_courses = []
+full_courses = []
+
+# open class file with pd
+# format is
+# Name: str,
+# Teacher: str,
+# Capacity: int,
+# Type: "Morning"|"Afternoon"|"Full"
+
+class_file = pd.read_csv(sys.argv[3])
+for index, row in class_file.iterrows():
+    name = row["Name"]
+    teacher = row["Teacher"]
+    capacity = row["Capacity"]
+    course_type = row["Type"]
+
+    if course_type == "Morning":
+        morning_courses.append(name)
+    elif course_type == "Afternoon":
+        afternoon_courses.append(name)
+    elif course_type == "Full":
+        full_courses.append(name)
 
 
 # Define function to create a fake student
@@ -88,4 +88,4 @@ fake_students = [create_fake_student() for _ in range(int(sys.argv[1]))]
 fake_students_df = pd.DataFrame(fake_students)
 
 # Save to CSV
-fake_students_df.to_csv("data/faker/fake_students.csv", index=False)
+fake_students_df.to_csv(sys.argv[2], index=False)

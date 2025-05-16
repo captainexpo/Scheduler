@@ -1,4 +1,15 @@
+from typing import Any
 import logging
+
+
+def index_def(ls: list[Any], elem: Any, default: Any = -1) -> int:
+    """
+    Returns the index of the element in the list, or default if not found.
+    """
+    try:
+        return ls.index(elem)
+    except ValueError:
+        return default
 
 
 class Student:
@@ -17,7 +28,7 @@ class Student:
         grade: str,
         course_type_pref: "CourseType",
         available_times: tuple[bool, bool],  # (morning, afternoon) for BTC students
-        prefs: dict["CourseType", "Course"],
+        prefs: dict["CourseType", list["Course"]],
     ) -> None:
         if not isinstance(list(prefs.keys())[0], CourseType):
             raise TypeError("prefs must be a dict of CourseType to Course")
@@ -43,12 +54,10 @@ class Student:
         #    f"Adding full course {course.name}({course.teacher}) to {self.first_name} {self.last_name}"
         # )
         if self._full_course is not None:
-            logging.error(
-                f"Error: {self.first_name} {self.last_name} already has a full course: {self._full_course}"
-            )
-            return False
+            self._full_course.remove_student(self)
         if course.is_full_day():
             self._full_course = course
+            course.add_student(self)
             return True
         logging.error(
             f"Error: {self.first_name} {self.last_name} cannot take a full course in a half day class"
@@ -60,15 +69,14 @@ class Student:
         #    f"Adding morning course {course.name}({course.teacher}) to {self.first_name} {self.last_name}"
         # )
         if self._half_courses[0] is not None:
-            logging.error(
-                f"Error: {self.first_name} {self.last_name} already has a morning course: {self._half_courses[0]}"
-            )
-            return False
+            self.half_courses[0].remove_student(self)
+
         if course.is_full_day():
             logging.error(
                 f"Error: {self.first_name} {self.last_name} cannot take a full course in a half day class"
             )
             return False
+        course.add_student(self)
         self._half_courses[0] = course
         return True
 
@@ -77,19 +85,18 @@ class Student:
         #    f"Adding afternoon course {course.name}({course.teacher}) to {self.first_name} {self.last_name}"
         # )
         if self.half_courses[1] is not None:
-            logging.error(
-                f"Error: {self.first_name} {self.last_name} already has an afternoon course: {self.half_courses[1]}"
-            )
-            return False
+            self.half_courses[1].remove_student(self)
         if course.is_full_day():
             logging.error(
                 f"Error: {self.first_name} {self.last_name} cannot take a full course in a half day class"
             )
             return False
+        course.add_student(self)
         self._half_courses[1] = course
         return True
 
     def remove_courses(self) -> None:
+        raise Exception("FUCK yoU")
         if self.full_course is not None:
             if self.full_course.remove_student(self):
                 self._full_course = None
@@ -99,61 +106,24 @@ class Student:
                     self._half_courses[i] = None
 
     def score(self) -> int:
-        # score calculation is calculated based on how 'happy' this student will be based on the assigned courses
-        # if half day is preferred: score = morning_prefs.find(course_a) + afternoon_prefs.find(course_b)
-        # if full day is preferred: score = full_prefs.find(course_a)
-
-        score = 0
-        if self.full_course is not None:
-            try:
-                score += (
-                    len(self.prefs)
-                    - self.prefs[CourseType.FULL].index(self.full_course)
-                    + 1
-                )
-            except ValueError:
-                pass  # not found, score is 0
-        if self.half_courses[0] is not None:
-            try:
-                score += (
-                    len(self.prefs)
-                    - self.prefs[CourseType.MORNING].index(self.half_courses[0])
-                    + 1
-                )
-            except ValueError:
-                pass
-        if self.half_courses[1] is not None:
-            try:
-                score += (
-                    len(self.prefs)
-                    - self.prefs[CourseType.AFTERNOON].index(self.half_courses[1])
-                    + 1
-                )
-            except ValueError:
-                pass
-        return score
-
-    def position(self) -> int:
-        position = 0
-        if self.full_course is not None:
-            return 5 - self.prefs[CourseType.FULL].index(self.full_course)
-        a = 0
-        if self.half_courses[0] is not None:
-            a += 1
-            position += 5 - self.prefs[CourseType.MORNING].index(self.half_courses[0])
-        if self.half_courses[1] is not None:
-            a += 1
-            position += 5 - self.prefs[CourseType.AFTERNOON].index(self.half_courses[1])
-        return position // a
+        """
+        Calculates a 'happiness' score from 0 (unhappy) to 100 (perfect).
+        """
+        if self.course_type_pref == CourseType.FULL:
+            return index_def(self.prefs[CourseType.FULL], self.full_course, 0)
+        else:
+            return (
+                index_def(self.prefs[CourseType.MORNING], self.half_courses[0], 0)
+                + index_def(self.prefs[CourseType.AFTERNOON], self.half_courses[1], 0)
+                / 2
+            )
 
     def __str__(self):
         #
-        return (
-            f"{self.first_name} {self.last_name}({self.grade})(pos {self.position()})"
-        )
+        return f"{self.first_name} {self.last_name}{self.available_times}({self._full_course.name if self._full_course is not None else 'None'})({self._half_courses[0].name if self._half_courses[0] is not None else 'None'})({self._half_courses[1].name if self._half_courses[1] is not None else 'None'})"
 
     def short_str(self):
-        return f"{self.first_name}_{self.last_name}(pos {self.position()})"
+        return f"{self.first_name}_{self.last_name}({self.score()})"
 
 
 if True:

@@ -15,7 +15,7 @@ class Course:
     teacher: str
     capacity: int
     type: CourseType
-    students: list["Student"]
+    students: set["Student"]
 
     def __init__(
         self,
@@ -28,7 +28,7 @@ class Course:
         self.teacher = teacher
         self.capacity = capacity
         self.type = course_type
-        self.students = []
+        self.students = set()
 
     def is_full_day(self) -> bool:
         return self.type == CourseType.FULL
@@ -40,12 +40,12 @@ class Course:
         return len(self.students) > self.capacity
 
     def add_student(self, student: Student) -> bool:
-        if student in self.students:
-            logging.warning(
-                f"Warning: {student} is already in {self.name}({self.teacher})"
-            )
-            return False
-        self.students.append(student)
+        # if student in self.students:
+        #    logging.warning(
+        #        f"Warning: {student} is already in {self.name}({self.teacher})"
+        #    )
+        #    return False
+        self.students.add(student)
 
         logging.debug(f"Added student {student} to {self.name}({self.teacher})")
         return True
@@ -57,11 +57,13 @@ class Course:
             )
             return False
         self.students.remove(student)
+        logging.debug(f"Removed student {student} from {self.name}({self.teacher})")
         return True
 
     def sort_by_preference_position(self) -> list:
-        self.students.sort(key=lambda student: student.prefs[self.type].index(self))
-        return self.students
+        l = list(self.students)
+        l.sort(key=lambda student: student.prefs[self.type].index(self))
+        return l
 
     def __str__(self) -> str:
         return f"""{self.name}({self.teacher}){{

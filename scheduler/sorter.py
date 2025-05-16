@@ -16,6 +16,13 @@ class Sorter:
         )
         self.student_pref_positions: dict[Student, Union[int, list[int]]] = {}
 
+    def add_to_unsorted(self, student: Student) -> None:
+        # student.remove_courses()
+        student.add_course_afternoon(self.unsorted_class)
+        student.add_course_morning(self.unsorted_class)
+        student.add_course_full(self.unsorted_class)
+        self.unsorted_class.add_student(student)
+
     def move_student_if_needed(self, student: Student) -> None:
         if student.course_type_pref == CourseType.FULL:
             if student.full_course.is_over_capacity():
@@ -26,14 +33,12 @@ class Sorter:
                 and student.half_courses[0].is_over_capacity()
             ):
                 student.half_courses[0].remove_student(student)
-                student.half_courses[0] = None
                 self.move_student_to_next(student, 0)
             if (
                 student.available_times[1]
                 and student.half_courses[1].is_over_capacity()
             ):
                 student.half_courses[1].remove_student(student)
-                student.half_courses[1] = None
                 self.move_student_to_next(student, 1)
 
     def move_student_to_next(self, student: Student, time: int = -1) -> None:
@@ -41,8 +46,8 @@ class Sorter:
             f"Moving student {student.last_name} to pref {self.student_pref_positions.get(student)}."
         )
 
-        if time == -1:
-            student.remove_courses()
+        # if time == -1:
+        #    student.remove_courses()
 
         if student.course_type_pref == CourseType.FULL:
             self._move_full_day_student(student)
@@ -56,12 +61,13 @@ class Sorter:
             logging.debug(
                 f"Student {student.last_name} moved to unsorted class (FULL)."
             )
-            self.unsorted_class.add_student(student)
+            self.add_to_unsorted(student)
             self.student_pref_positions[student] = current_index
+
             return
 
         course = prefs[current_index]
-        course.add_student(student)
+        # course.add_student(student)
         student.add_course_full(course)
         self.student_pref_positions[student] = current_index
         logging.debug(f"Student {student.last_name} added to course {course.name}.")
@@ -71,7 +77,7 @@ class Sorter:
             logging.warning(
                 f"Invalid student_pref_positions type for {student.last_name}"
             )
-            self.unsorted_class.add_student(student)
+            self.add_to_unsorted(student)
             return
 
         positions = self.student_pref_positions[student]
@@ -79,7 +85,8 @@ class Sorter:
             logging.warning(
                 f"Malformed preference positions for student {student.last_name}"
             )
-            self.unsorted_class.add_student(student)
+            self.add_to_unsorted(student)
+
             return
 
         updated = self._assign_half_day_courses(student, positions, t)
@@ -88,7 +95,7 @@ class Sorter:
             logging.debug(
                 f"Student {student.last_name} moved to unsorted class (HALF)."
             )
-            self.unsorted_class.add_student(student)
+            self.add_to_unsorted(student)
 
     def _assign_half_day_courses(
         self, student: Student, positions: list[int], t: int = -1
@@ -109,7 +116,7 @@ class Sorter:
                     continue
 
                 course = prefs[pos]
-                course.add_student(student)
+                # course.add_student(student)
 
                 if time == "MORNING":
                     student.add_course_morning(course)
@@ -125,7 +132,7 @@ class Sorter:
         logging.debug("Starting sorting process.")
         self.students = raw_data.students
         self.courses = raw_data.courses
-        self.unsorted_class.students = []
+        self.unsorted_class.students = set()
 
         self.student_pref_positions = {
             student: -1 if student.course_type_pref == CourseType.FULL else [-1, -1]
@@ -147,6 +154,7 @@ class Sorter:
                         try:
                             self.move_student_if_needed(student)
                         except Exception as e:
+                            raise e
                             logging.error(
                                 f"Error moving student {student.last_name}: {e}"
                             )
@@ -159,15 +167,12 @@ class Sorter:
 
         total_score: int = 0
         avg_score: float = 0
-        mode = [0 for _ in range(6)]
         for student in self.students:
             total_score += student.score()
             avg_score += student.score() / len(self.students)
-            mode[student.position()] += 1
         self.meta = {
             "total_score": total_score,
             "avg_score": round(avg_score, 2),
-            "mode": mode,
             "students": len(self.students),
             "courses": len(self.courses),
             "overpopulated": [
@@ -177,6 +182,16 @@ class Sorter:
             ],
             "unsorted": self.unsorted_class.num_students(),
         }
+        # print students and their assigned courses
+        # for student in self.students:
+        #    if student.course_type_pref == CourseType.FULL:
+        #        logging.debug(
+        #            f"Student {student.last_name} assigned to full course {student.full_course.name if student.full_course else 'None'}"
+        #        )
+        #    else:
+        #        logging.debug(
+        #            f"Student {student.last_name} assigned to half courses {(student.half_courses[0].name) if student.half_courses[0] else 'None'} and {student.half_courses[1].name if student.half_courses[1] else 'None'}"
+        #        )
 
     def get_raw_data(self) -> RawData:
         logging.debug("Getting raw data.")
