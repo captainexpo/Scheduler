@@ -2,36 +2,81 @@ from faker import Faker
 import pandas as pd
 import sys
 import random
+from collections import defaultdict
 
 # Initialize Faker
 fake = Faker()
 
+def build_course_pools(class_file: pd.DataFrame):
+    morning_courses = []
+    afternoon_courses = []
+    full_courses = []
+    courses_by_subject = defaultdict(lambda: {"Morning": [], "Afternoon": [], "Full": []})
+    course_rows = []
 
-# Define available preferences
-morning_courses = []
-afternoon_courses = []
-full_courses = []
+    for _, row in class_file.iterrows():
+        name = row["Name"]
+        teacher = row["Teacher"]
+        capacity = row["Capacity"]
+        course_type = row["Type"]
 
-# open class file with pd
-# format is
-# Name: str,
-# Teacher: str,
-# Capacity: int,
-# Type: "Morning"|"Afternoon"|"Full"
+        base_subject = name.rsplit("_", 1)[0]
+        course_rows.append((name, teacher, capacity, course_type, base_subject))
+
+        if course_type == "Morning":
+            morning_courses.append(name)
+        elif course_type == "Afternoon":
+            afternoon_courses.append(name)
+        elif course_type == "Full":
+            full_courses.append(name)
+
+        courses_by_subject[base_subject][course_type].append(name)
+
+    return morning_courses, afternoon_courses, full_courses, courses_by_subject, course_rows
 
 class_file = pd.read_csv(sys.argv[3])
-for index, row in class_file.iterrows():
-    name = row["Name"]
-    teacher = row["Teacher"]
-    capacity = row["Capacity"]
-    course_type = row["Type"]
+morning_courses, afternoon_courses, full_courses, courses_by_subject, course_rows = build_course_pools(class_file)
 
-    if course_type == "Morning":
-        morning_courses.append(name)
-    elif course_type == "Afternoon":
-        afternoon_courses.append(name)
-    elif course_type == "Full":
-        full_courses.append(name)
+subjects = sorted({subject for subject in courses_by_subject.keys()})
+
+
+def preferred_course_list(pool: list[str], count: int) -> list[str]:
+    if not pool:
+        return ["" for _ in range(count)]
+    if len(pool) >= count:
+        return random.sample(pool, count)
+    chosen = list(pool)
+    while len(chosen) < count:
+        chosen.append(random.choice(pool))
+    return chosen
+
+
+def pick_weighted(pool: list[str], emphasis: list[str], count: int) -> list[str]:
+    if not pool:
+        return ["" for _ in range(count)]
+    weighted = list(pool)
+    if emphasis:
+        weighted.extend(emphasis * 3)
+    chosen = []
+    seen = set()
+    attempts = 0
+    while len(chosen) < count and attempts < count * 12:
+        attempts += 1
+        candidate = random.choice(weighted)
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        chosen.append(candidate)
+    while len(chosen) < count:
+        candidate = random.choice(pool)
+        if candidate in seen:
+            continue
+        seen.add(candidate)
+        chosen.append(candidate)
+
+    while len(chosen) < count:
+        chosen.append(random.choice(pool))
+    return chosen
 
 
 # Define function to create a fake student
@@ -39,23 +84,41 @@ def create_fake_student():
     first_name = fake.first_name()
     last_name = fake.last_name()
     grade = random.randint(9, 12)
-    cte_or_btc_weights = [
-        0.1,
-        0.1,
-        0.8,
-    ]  # Weights for "Morning", "Afternoon", "None", None
+
+    # Availability in the current loader means:
+    # - Morning -> afternoon-only
+    # - Afternoon -> morning-only
+    # - None -> both slots available
     cte_or_btc = random.choices(
         ["Morning", "Afternoon", "None"],
-        weights=cte_or_btc_weights,
+        weights=[0.16, 0.16, 0.68],
         k=1,
     )[0]
-    pref_class_type = (
-        random.choice(["Half", "Full"]) if cte_or_btc == "None" else "Half"
-    )
+    pref_class_type = random.choices(["Half", "Full"], weights=[0.62, 0.38], k=1)[0]
 
-    morning_prefs = random.sample(morning_courses, 5)
-    afternoon_prefs = random.sample(afternoon_courses, 5)
-    full_prefs = random.sample(full_courses, 5)
+    # Give students a small thematic cluster so preferences look human rather than uniform.
+    focus_subjects = random.sample(subjects, k=min(2, len(subjects))) if subjects else []
+    focus_courses = []
+    for subject in focus_subjects:
+        focus_courses.extend(courses_by_subject[subject]["Morning"])
+        focus_courses.extend(courses_by_subject[subject]["Afternoon"])
+        focus_courses.extend(courses_by_subject[subject]["Full"])
+
+    morning_pool = morning_courses
+    afternoon_pool = afternoon_courses
+    full_pool = full_courses
+
+    morning_prefs = pick_weighted(morning_pool, focus_courses, 5)
+    afternoon_prefs = pick_weighted(afternoon_pool, focus_courses, 5)
+    full_prefs = pick_weighted(full_pool, focus_courses, 5)
+
+    # Occasionally create a more one-sided preference profile for realism.
+    if random.random() < 0.18:
+        morning_prefs = preferred_course_list(morning_pool, 5)
+    if random.random() < 0.18:
+        afternoon_prefs = preferred_course_list(afternoon_pool, 5)
+    if random.random() < 0.12:
+        full_prefs = preferred_course_list(full_pool, 5)
 
     return {
         "First Name": first_name,
@@ -81,7 +144,12 @@ def create_fake_student():
     }
 
 
-# Generate a list of 30 fake students
+seed = int(sys.argv[4]) if len(sys.argv) > 4 else None
+if seed is not None:
+    random.seed(seed)
+    Faker.seed(seed)
+
+# Generate a list of fake students
 fake_students = [create_fake_student() for _ in range(int(sys.argv[1]))]
 
 # Create DataFrame

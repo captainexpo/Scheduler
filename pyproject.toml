@@ -7,4 +7,5 @@ requires-python = ">=3.12"
 dependencies = [
     "faker>=37.1.0",
     "pandas>=2.2.3",
+    "pulp>=3.3.0",
 ]

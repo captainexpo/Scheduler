@@ -61,9 +61,18 @@ class Course:
         return True
 
     def sort_by_preference_position(self) -> list:
-        l = list(self.students)
-        l.sort(key=lambda student: student.prefs[self.type].index(self))
-        return l
+        students = list(self.students)
+
+        def preference_position(student: Student) -> int:
+            prefs = student.prefs.get(self.type, [])
+            try:
+                return prefs.index(self)
+            except ValueError:
+                # If the assignment is outside declared prefs, treat as worst rank.
+                return len(prefs) + 100
+
+        students.sort(key=preference_position)
+        return students
 
     def __str__(self) -> str:
         return f"""{self.name}({self.teacher}){{

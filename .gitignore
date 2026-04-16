@@ -52,3 +52,4 @@ out.txt
 *.bak
 data/
 output/
+.csv

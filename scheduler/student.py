@@ -16,7 +16,7 @@ class Student:
     first_name: str
     last_name: str
     course_type_pref: "CourseType"
-    prefs: dict["CourseType", "Course"]
+    prefs: dict["CourseType", list["Course"]]
     available_times: tuple[bool, bool]
     # full_course: "Course" = None
     # half_courses: list["Course"] = [None, None]
@@ -38,16 +38,16 @@ class Student:
         self.grade = grade
         self.course_type_pref = course_type_pref
         self.available_times = available_times
-        self._full_course = None
-        self._half_courses = [None, None]
+        self._full_course = None  # type: Course | None
+        self._half_courses = [None, None]  # type: list[Course | None]
 
     @property
     def full_course(self) -> "Course":
-        return self._full_course
+        return self._full_course #type: ignore
 
     @property
     def half_courses(self) -> list["Course"]:
-        return self._half_courses
+        return self._half_courses #type: ignore
 
     def add_course_full(self, course: "Course") -> bool:
         # logging.debug(
@@ -96,7 +96,7 @@ class Student:
         return True
 
     def remove_courses(self) -> None:
-        raise Exception("FUCK yoU")
+        raise Exception("Tried to remove courses :(")
         if self.full_course is not None:
             if self.full_course.remove_student(self):
                 self._full_course = None
@@ -105,7 +105,7 @@ class Student:
                 if self.half_courses[i].remove_student(self):
                     self._half_courses[i] = None
 
-    def score(self) -> int:
+    def score(self) -> float:
         """
         Calculates a 'happiness' score from 0 (unhappy) to 100 (perfect).
         """
