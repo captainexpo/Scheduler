@@ -202,7 +202,36 @@ class LPSorter:
         stage1 = build_model()
         stage1.sense = pulp.LpMinimize
         stage1.setObjective(unsorted_objective())
-        stage1.solve(pulp.PULP_CBC_CMD(msg=False))
+        stage1.solve(pulp.PULP_CBC_CMD(msg=True))
+        full_unsorted_count = 0
+        half_unsorted_count = 0
+
+        for (student, course), var in full_vars.items():
+            if pulp.value(var) == 1:
+                student.add_course_full(course)
+
+        for student, var in full_unsorted.items():
+            if pulp.value(var) == 1:
+                full_unsorted_count += 1
+
+        for (student, course), var in morning_vars.items():
+            if pulp.value(var) == 1:
+                student.add_course_morning(course)
+
+        for student, var in morning_unsorted.items():
+            if pulp.value(var) == 1:
+                half_unsorted_count += 1
+
+        for (student, course), var in afternoon_vars.items():
+            if pulp.value(var) == 1:
+                student.add_course_afternoon(course)
+
+        for student, var in afternoon_unsorted.items():
+            if pulp.value(var) == 1:
+                half_unsorted_count += 1
+        self._build_meta(full_unsorted_count, half_unsorted_count)
+
+        print(self.raw_data.meta)
 
         best_unsorted_value = pulp.value(unsorted_objective())
         best_unsorted = 0
@@ -274,6 +303,37 @@ class LPSorter:
             )
         )
 
+        c_dist = [0,0,0,0,0,0]
+        top_3 = 0
+        for student in self.raw_data.students:
+            if student.course_type_pref == CourseType.HALF:
+                c = student.half_courses
+                i0 = 6
+                i1 = 6
+                if student.half_courses[0] is not None:
+                    i0 = student.prefs[CourseType.MORNING].index(c[0])
+                    c_dist[i0] += 0.5
+                    if i0 <= 2:
+                        top_3 += 1
+                else:
+                    c_dist[-1] += 0.5
+                if student.half_courses[1] is not None:
+                    i1 = student.prefs[CourseType.AFTERNOON].index(c[1])
+                    c_dist[i1] += 0.5
+                    if i1 <= 2 and i0 > 2:
+                        top_3 += 1
+                else:
+                    c_dist[-1] += 0.5
+            if student.course_type_pref == CourseType.FULL:
+                if student.full_course is not None:
+                    i = student.prefs[CourseType.FULL].index(student.full_course)
+                    c_dist[i] += 1
+                    if i <= 2:
+                        top_3 += 1
+                else:
+                    c_dist[-1] += 1
+
+
         self.raw_data.meta = {
             "algorithm": "lp",
             "total_score": total_score,
@@ -283,4 +343,6 @@ class LPSorter:
             "unsorted": unsorted_students,
             "unsorted_full_students": full_unsorted_count,
             "unsorted_half_slots": half_unsorted_count,
+            "score_dist": c_dist,
+            "top_3": top_3,
         }

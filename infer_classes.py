@@ -19,7 +19,7 @@ AFTERNOON_COLS = [19, 20, 21, 22, 23] # "My FIRST–FIFTH choice for an AFTERNOO
 CAPACITY = 20
 
 SECTIONS = [
-    ("Full Day",   FULL_DAY_COLS),
+    ("Full",   FULL_DAY_COLS),
     ("Morning",    MORNING_COLS),
     ("Afternoon",  AFTERNOON_COLS),
 ]
