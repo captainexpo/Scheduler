@@ -6,12 +6,11 @@ to the expected format for the scheduler.
 
 import csv
 import re
-from pathlib import Path
 
 
 def clean_grade(grade_str: str) -> str:
     """Extract numeric grade from strings like '10th', '11th', '9th'."""
-    match = re.search(r'\d+', grade_str)
+    match = re.search(r"\d+", grade_str)
     return match.group() if match else grade_str
 
 
@@ -22,7 +21,9 @@ def parse_preference_type(pref_str: str) -> str:
 
     pref_lower = pref_str.lower()
 
-    if "full day" in pref_lower:
+    if "no preference" in pref_lower:
+        return "No Preference"
+    elif "full day" in pref_lower:
         return "Full"
     elif "half day" in pref_lower:
         return "Half"
@@ -36,23 +37,17 @@ def parse_preference_type(pref_str: str) -> str:
         return "Half"
 
 
-def parse_btc_cte(advisory_text: str) -> str:
+def parse_btc_cte(text: str) -> str:
     """Extract BTC/CTE time from advisory teacher field or similar.
 
     Returns 'Morning', 'Afternoon', or 'None'.
     """
-    if not advisory_text or advisory_text.strip() == "":
+    if not text or text.strip() == "":
         return "None"
 
-    text_lower = advisory_text.lower()
-
-    if "morning" in text_lower and "btc" in text_lower:
+    if text == "I attend a MORNING BTC course, so I will only be enrolling in an AFTERNOON YES class.":
         return "Morning"
-    elif "afternoon" in text_lower and "btc" in text_lower:
-        return "Afternoon"
-    elif "morning" in text_lower and "cte" in text_lower:
-        return "Morning"
-    elif "afternoon" in text_lower and "cte" in text_lower:
+    if text == "I attend a AFTERNOON BTC course, so I will only be enrolling in a MORNING YES class.":
         return "Afternoon"
 
     return "None"
@@ -76,44 +71,111 @@ def convert_csv(input_path: str, output_path: str) -> None:
     """Convert Google Form CSV to scheduler format."""
 
     rows_out = []
+    fieldnames = [
+        "First Name",
+        "Last Name",
+        "Grade",
+        "Pref Class Type",
+        "CTE or BTC",
+        "Morning Pref 1",
+        "Morning Pref 2",
+        "Morning Pref 3",
+        "Morning Pref 4",
+        "Morning Pref 5",
+        "Afternoon Pref 1",
+        "Afternoon Pref 2",
+        "Afternoon Pref 3",
+        "Afternoon Pref 4",
+        "Afternoon Pref 5",
+        "Full Pref 1",
+        "Full Pref 2",
+        "Full Pref 3",
+        "Full Pref 4",
+        "Full Pref 5",
+    ]
 
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        headers = next(reader)
+    with open(input_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        def get_value(row: dict[str, str], *keys: str) -> str:
+            for key in keys:
+                value = row.get(key, "")
+                if value and value.strip():
+                    return value.strip()
+            return ""
+
+        def collect_values(row: dict[str, str], keys: list[str]) -> list[str]:
+            values: list[str] = []
+            for key in keys:
+                value = get_value(row, key)
+                if value and not is_comment_row(value):
+                    values.append(value)
+            return values
+
+        def extract_btc_cte(row: dict[str, str]) -> str:
+            for value in row.values():
+                parsed = parse_btc_cte(value)
+                if parsed != "None":
+                    return parsed
+            return "None"
+
+        morning_keys = [
+            "Morning Pref 1",
+            "Morning Pref 2",
+            "Morning Pref 3",
+            "Morning Pref 4",
+            "Morning Pref 5",
+            "My FIRST choice for a MORNING class is",
+            "My SECOND choice for a MORNING class is",
+            "My THIRD choice for a MORNING class is",
+            "My FOURTH choice for a MORNING class is",
+            "My FIFTH choice for a MORNING class is",
+        ]
+        afternoon_keys = [
+            "Afternoon Pref 1",
+            "Afternoon Pref 2",
+            "Afternoon Pref 3",
+            "Afternoon Pref 4",
+            "Afternoon Pref 5",
+            "My FIRST choice for an AFTERNOON class is",
+            "My SECOND choice for an AFTERNOON class is",
+            "My THIRD choice for an AFTERNOON class is",
+            "My FOURTH choice for an AFTERNOON class is",
+            "My FIFTH choice for an AFTERNOON class is",
+        ]
+        full_keys = [
+            "Full Pref 1",
+            "Full Pref 2",
+            "Full Pref 3",
+            "Full Pref 4",
+            "Full Pref 5",
+            "My FIRST choice for a full day class is",
+            "My SECOND choice for a full day class is",
+            "My THIRD choice for a full day class is",
+            "My FOURTH choice for a full day class is",
+            "My FIFTH choice for a full day class is",
+        ]
 
         for row in reader:
-            # Extract fields from Google Form format
-            # Columns: Timestamp, Email, Last Name, First Name, Current Grade, Advisory Teacher,
-            #          Preference Type, Full Day 1-5, spacer, Morning 1-5, spacer, Afternoon 1-5
+            # Extract fields from Google Form format and preserve the output schema
 
-            first_name = row[3].strip() if len(row) > 3 else ""
-            last_name = row[2].strip() if len(row) > 2 else ""
-            grade = clean_grade(row[4]) if len(row) > 4 else ""
-            pref_type = parse_preference_type(row[6]) if len(row) > 6 else "Half"
+            first_name = get_value(row, "First Name")
+            last_name = get_value(row, "Last Name")
+            grade = clean_grade(get_value(row, "Grade", "Current Grade"))
+            pref_type = parse_preference_type(
+                get_value(
+                    row,
+                    "Pref Class Type",
+                    "Please identify if you prefer a full day or half day",
+                    "Please identify if you prefer a full day or half day class",
+                )
+            )
 
-            # Parse BTC/CTE time from the "I attend a X BTC/CTE" pattern
-            btc_cte_text = row[6] if len(row) > 6 else ""  # Use preference type column
-            btc_cte_time = parse_btc_cte(btc_cte_text)
+            btc_cte_time = extract_btc_cte(row)
 
-            # Full day preferences (cols 7-11)
-            full_prefs = [row[i].strip() for i in range(7, 12) if len(row) > i]
-            full_prefs = [p for p in full_prefs if p and not is_comment_row(p)]
-
-            # Morning preferences (cols 14-18) - skip col 12 and 13 which are separators
-            # Empty if student has morning BTC/CTE
-            if btc_cte_time == "Morning":
-                morning_prefs = []
-            else:
-                morning_prefs = [row[i].strip() for i in range(14, 19) if len(row) > i]
-                morning_prefs = [p for p in morning_prefs if p and not is_comment_row(p)]
-
-            # Afternoon preferences (cols 21-25) - skip col 19 and 20 which are separators
-            # Empty if student has afternoon BTC/CTE
-            if btc_cte_time == "Afternoon":
-                afternoon_prefs = []
-            else:
-                afternoon_prefs = [row[i].strip() for i in range(21, 26) if len(row) > i]
-                afternoon_prefs = [p for p in afternoon_prefs if p and not is_comment_row(p)]
+            full_prefs = collect_values(row, full_keys)
+            morning_prefs = collect_values(row, morning_keys)
+            afternoon_prefs = collect_values(row, afternoon_keys)
 
             # Pad with empty strings to match 5 slots
             while len(morning_prefs) < 5:
@@ -124,25 +186,35 @@ def convert_csv(input_path: str, output_path: str) -> None:
                 full_prefs.append("")
 
             # Build output row
-            out_row = [
-                first_name,
-                last_name,
-                grade,
-                pref_type,
-                btc_cte_time,  # "Morning", "Afternoon", or "None"
-            ] + morning_prefs[:5] + afternoon_prefs[:5] + full_prefs[:5]
+            out_row = {
+                "First Name": first_name,
+                "Last Name": last_name,
+                "Grade": grade,
+                "Pref Class Type": pref_type,
+                "CTE or BTC": btc_cte_time,
+                "Morning Pref 1": morning_prefs[0],
+                "Morning Pref 2": morning_prefs[1],
+                "Morning Pref 3": morning_prefs[2],
+                "Morning Pref 4": morning_prefs[3],
+                "Morning Pref 5": morning_prefs[4],
+                "Afternoon Pref 1": afternoon_prefs[0],
+                "Afternoon Pref 2": afternoon_prefs[1],
+                "Afternoon Pref 3": afternoon_prefs[2],
+                "Afternoon Pref 4": afternoon_prefs[3],
+                "Afternoon Pref 5": afternoon_prefs[4],
+                "Full Pref 1": full_prefs[0],
+                "Full Pref 2": full_prefs[1],
+                "Full Pref 3": full_prefs[2],
+                "Full Pref 4": full_prefs[3],
+                "Full Pref 5": full_prefs[4],
+            }
 
             rows_out.append(out_row)
 
     # Write output
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "First Name", "Last Name", "Grade", "Pref Class Type", "CTE or BTC",
-            "Morning Pref 1", "Morning Pref 2", "Morning Pref 3", "Morning Pref 4", "Morning Pref 5",
-            "Afternoon Pref 1", "Afternoon Pref 2", "Afternoon Pref 3", "Afternoon Pref 4", "Afternoon Pref 5",
-            "Full Pref 1", "Full Pref 2", "Full Pref 3", "Full Pref 4", "Full Pref 5",
-        ])
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
         writer.writerows(rows_out)
 
     print(f"✓ Converted {len(rows_out)} students")
@@ -151,6 +223,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
 
 if __name__ == "__main__":
     import sys
+
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     convert_csv(input_file, output_file)

@@ -8,7 +8,7 @@ from typing import Union
 
 from scheduler.course import Course, CourseType
 from scheduler.data import RawData
-from scheduler.sorter import Sorter
+from scheduler.greedy_sorter import Sorter
 from scheduler.student import Student
 
 

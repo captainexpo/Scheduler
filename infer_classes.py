@@ -18,10 +18,43 @@ AFTERNOON_COLS = [19, 20, 21, 22, 23] # "My FIRST–FIFTH choice for an AFTERNOO
 
 CAPACITY = 20
 
-SECTIONS = [
-    ("Full",   FULL_DAY_COLS),
-    ("Morning",    MORNING_COLS),
-    ("Afternoon",  AFTERNOON_COLS),
+CONVERTED_SECTIONS = [
+    (
+        "Full",
+        [
+            "Full Pref 1",
+            "Full Pref 2",
+            "Full Pref 3",
+            "Full Pref 4",
+            "Full Pref 5",
+        ],
+    ),
+    (
+        "Morning",
+        [
+            "Morning Pref 1",
+            "Morning Pref 2",
+            "Morning Pref 3",
+            "Morning Pref 4",
+            "Morning Pref 5",
+        ],
+    ),
+    (
+        "Afternoon",
+        [
+            "Afternoon Pref 1",
+            "Afternoon Pref 2",
+            "Afternoon Pref 3",
+            "Afternoon Pref 4",
+            "Afternoon Pref 5",
+        ],
+    ),
+]
+
+RAW_SECTIONS = [
+    ("Full", [7, 8, 9, 10, 11]),
+    ("Morning", [13, 14, 15, 16, 17]),
+    ("Afternoon", [19, 20, 21, 22, 23]),
 ]
 
 
@@ -35,28 +68,62 @@ def parse_classes(input_path: str) -> list[dict]:
 
     with open(input_path, newline="", encoding="utf-8-sig") as f:
         reader = csv.reader(f)
-        next(reader)  # skip header row
+        headers = next(reader)
 
-        for row in reader:
-            if not any(row):  # skip blank rows
-                continue
+        def is_converted_schema() -> bool:
+            return "Morning Pref 1" in headers and "Full Pref 1" in headers
 
-            for session_type, cols in SECTIONS:
-                for col in cols:
-                    if col >= len(row):
-                        continue
-                    name = row[col].strip()
-                    if not name:
-                        continue
+        if is_converted_schema():
+            session_sections = CONVERTED_SECTIONS
+            header_index = {name: idx for idx, name in enumerate(headers)}
 
-                    key = (name, session_type)
-                    if key not in seen:
-                        seen[key] = {
-                            "Name":     name,
-                            "Teacher":  "",        # not present in source data
-                            "Capacity": CAPACITY,
-                            "Type":     session_type,
-                        }
+            def get_name(row: list[str], col_name: str) -> str:
+                idx = header_index.get(col_name)
+                if idx is None or idx >= len(row):
+                    return ""
+                return row[idx].strip()
+
+            for row in reader:
+                if not any(row):
+                    continue
+
+                for session_type, cols in session_sections:
+                    for col_name in cols:
+                        name = get_name(row, col_name)
+                        if not name:
+                            continue
+
+                        key = (name, session_type)
+                        if key not in seen:
+                            seen[key] = {
+                                "Name": name,
+                                "Teacher": "",
+                                "Capacity": CAPACITY,
+                                "Type": session_type,
+                            }
+        else:
+            session_sections = RAW_SECTIONS
+
+            for row in reader:
+                if not any(row):  # skip blank rows
+                    continue
+
+                for session_type, cols in session_sections:
+                    for col in cols:
+                        if col >= len(row):
+                            continue
+                        name = row[col].strip()
+                        if not name:
+                            continue
+
+                        key = (name, session_type)
+                        if key not in seen:
+                            seen[key] = {
+                                "Name": name,
+                                "Teacher": "",  # not present in source data
+                                "Capacity": CAPACITY,
+                                "Type": session_type,
+                            }
 
     return list(seen.values())
 

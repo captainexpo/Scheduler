@@ -109,7 +109,10 @@ class Student:
         """
         Calculates a 'happiness' score from 0 (unhappy) to 100 (perfect).
         """
-        if self.course_type_pref == CourseType.FULL:
+        if self.course_type_pref == CourseType.FULL or (
+            self.course_type_pref == CourseType.NO_PREFERENCE
+            and self.full_course is not None
+        ):
             return index_def(self.prefs[CourseType.FULL], self.full_course, 6)
         else:
             return (
