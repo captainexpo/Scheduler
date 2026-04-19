@@ -1,5 +1,7 @@
 import csv
-import scheduler.data as data
+from datetime import datetime
+from typing import Optional
+from scheduler.data import RawData
 from scheduler.course import Course, CourseType
 from scheduler.student import Student
 
@@ -34,10 +36,22 @@ def parse_course_type_pref(pref: str) -> CourseType:
     else:
         return CourseType.HALF
 
-def load_student(row: list[str]) -> Student:
+# (first_name, last_name, grade) -> (student, timestamp)
+students_actual: dict[tuple[str, str, str], tuple[Student,datetime]] = {}
+
+def load_student(row: list[str]) -> Optional[Student]:
+    timestamp = datetime.strptime(row[0], "%m/%d/%Y %H:%M:%S") # google forms timestamp
+
+    row = row[1:]
     first_name = row[0]
     last_name = row[1]
     grade = row[2]
+
+    if (first_name, last_name, grade) in students_actual:
+        existing_student, existing_timestamp = students_actual[(first_name, last_name, grade)]
+        if timestamp <= existing_timestamp:
+            return None
+
     course_type_pref = row[3]
     available_times = (row[4] != "Morning", row[4] != "Afternoon")
     morning_prefs = row[5:10]
@@ -63,10 +77,13 @@ def load_student(row: list[str]) -> Student:
         available_times,
         prefs,
     )
+
+    students_actual[(first_name, last_name, grade)] = (student, timestamp)
+
     return student
 
 
-def load_data(student_csv: str, classes_csv: str) -> data.RawData:
+def load_data(student_csv: str, classes_csv: str) -> RawData:
     students: list[Student] = []
     _courses: list[Course] = []
     with open(classes_csv, "r") as f:
@@ -81,8 +98,22 @@ def load_data(student_csv: str, classes_csv: str) -> data.RawData:
         reader = csv.reader(f)
         next(reader)
         for row in reader:
-            student = load_student(row)
-            students.append(student)
+            _ = load_student(row) # we only care about the latest submission for each student, so we can ignore the return value for now
 
-    d: data.RawData = data.RawData(students, _courses)
+
+    for student, _ in students_actual.values():
+        students.append(student)
+
+
+
+    d = RawData(students, _courses)
     return d
+
+
+if __name__ == "__main__":
+    import sys
+
+    student_csv = sys.argv[1]
+    classes_csv = sys.argv[2]
+    data: RawData = load_data(student_csv, classes_csv)
+    print(data.as_text_output(format="csv"))

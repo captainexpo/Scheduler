@@ -72,6 +72,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
 
     rows_out = []
     fieldnames = [
+        "Timestamp",
         "First Name",
         "Last Name",
         "Grade",
@@ -158,7 +159,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
 
         for row in reader:
             # Extract fields from Google Form format and preserve the output schema
-
+            timestamp = get_value(row, "Timestamp")
             first_name = get_value(row, "First Name")
             last_name = get_value(row, "Last Name")
             grade = clean_grade(get_value(row, "Grade", "Current Grade"))
@@ -187,6 +188,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
 
             # Build output row
             out_row = {
+                "Timestamp": timestamp,
                 "First Name": first_name,
                 "Last Name": last_name,
                 "Grade": grade,

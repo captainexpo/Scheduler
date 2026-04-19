@@ -71,6 +71,8 @@ class RawData:
                 writer.write(pref_num_str)
                 writer.flush_line()
 
+            print("Generated CSV output")
+            print(len(self.students), "students written to CSV")
             return writer.get_raw_data()
         else:
             raise ValueError(f"Unknown format: {format}")
