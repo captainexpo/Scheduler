@@ -26,6 +26,13 @@ def remove_pref_duplicates(prefs: list[str]) -> list[str]:
             unique_prefs.append(pref)
     return unique_prefs
 
+def parse_course_type_pref(pref: str) -> CourseType:
+    if "Half" in pref:
+        return CourseType.HALF
+    elif "Full" in pref:
+        return CourseType.FULL
+    else:
+        return CourseType.HALF
 
 def load_student(row: list[str]) -> Student:
     first_name = row[0]
@@ -52,7 +59,7 @@ def load_student(row: list[str]) -> Student:
         first_name,
         last_name,
         grade,
-        CourseType[course_type_pref.upper()],
+        CourseType[course_type_pref.replace(" ", "_").upper()],
         available_times,
         prefs,
     )

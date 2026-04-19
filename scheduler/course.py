@@ -8,6 +8,7 @@ class CourseType(Enum):
     AFTERNOON = -1
     HALF = 0
     FULL = 1
+    NO_PREFERENCE = 2
 
 
 class Course:

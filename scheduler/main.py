@@ -26,14 +26,13 @@ def main(
         from scheduler.lp_sorter import LPSorter
         s = LPSorter()
     else:
-        import scheduler.sorter as sorter
-        s = sorter.Sorter()
-
+        raise ValueError(f"Unknown algorithm: {algorithm}")
+    
     s.sort(raw_data)
     raw_data = s.get_raw_data()
     print(raw_data.meta)
     with open(output_file, "w") as f:
-        f.write(str(raw_data))
+        f.write(raw_data.as_text_output(format='csv'))
 
 
 if __name__ == "__main__":
@@ -45,7 +44,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--algorithm",
-        choices=["greedy", "ga", "lp"],
+        choices=["ga", "lp"],
         default="greedy",
         help="Scheduling algorithm to use",
     )
