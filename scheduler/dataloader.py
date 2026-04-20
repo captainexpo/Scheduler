@@ -19,7 +19,7 @@ def load_course(row: list[str]) -> Course:
     return Course(name, teacher, capacity, course_type)
 
 
-def remove_pref_duplicates(prefs: list[str]) -> list[str]:
+def remove_pref_duplicates(prefs: list[Course]) -> list[Course]:
     seen = set()
     unique_prefs = []
     for pref in prefs:
@@ -48,7 +48,8 @@ def load_student(row: list[str]) -> Optional[Student]:
     grade = row[2]
 
     if (first_name, last_name, grade) in students_actual:
-        existing_student, existing_timestamp = students_actual[(first_name, last_name, grade)]
+        print(f"Duplicate {first_name} {last_name} grade {grade}")
+        _, existing_timestamp = students_actual[(first_name, last_name, grade)]
         if timestamp <= existing_timestamp:
             return None
 
@@ -100,7 +101,7 @@ def load_data(student_csv: str, classes_csv: str) -> RawData:
         for row in reader:
             _ = load_student(row) # we only care about the latest submission for each student, so we can ignore the return value for now
 
-
+    print(len(students_actual), "students loaded")
     for student, _ in students_actual.values():
         students.append(student)
 

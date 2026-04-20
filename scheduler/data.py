@@ -38,7 +38,7 @@ class RawData:
             return self.__str__()
         elif format == "csv":
             writer = CSVWriter()
-            writer.write_header("First Name,Last Name,Grade,BTC/CTE,Course Type Preference,Full Course,Half Course 1,Half Course 2,Preference #")
+            writer.write_header("First Name,Last Name,Grade,BTC/CTE,Course Type Preference,Full Course,Half Course 1,Half Course 2,Preference #,Is Unsorted")
             for student in sorted(self.students, key=lambda s: s.last_name):
                 full_course = student.full_course.name if student.full_course else ""
                 half_course_1 = student.half_courses[0].name if student.half_courses[0] else ""
@@ -60,6 +60,16 @@ class RawData:
                         pref_num_str += str(student.prefs[CourseType.AFTERNOON].index(student.half_courses[1]) + 1)
                 if pref_num_str == "":
                     pref_num_str = "N/A"
+
+                is_unsorted = False
+                if student.course_type_pref == CourseType.FULL and not student.full_course:
+                    is_unsorted = True
+                elif student.course_type_pref == CourseType.HALF:
+                    if student.available_times[0] and not student.half_courses[0]:
+                        is_unsorted = True
+                    if student.available_times[1] and not student.half_courses[1]:
+                        is_unsorted = True
+
                 writer.write(student.first_name)
                 writer.write(student.last_name)
                 writer.write(student.grade)
@@ -69,6 +79,7 @@ class RawData:
                 writer.write(half_course_1)
                 writer.write(half_course_2)
                 writer.write(pref_num_str)
+                writer.write(str(is_unsorted))
                 writer.flush_line()
 
             print("Generated CSV output")

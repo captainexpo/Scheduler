@@ -45,9 +45,14 @@ def parse_btc_cte(text: str) -> str:
     if not text or text.strip() == "":
         return "None"
 
-    if text == "I attend a MORNING BTC course, so I will only be enrolling in an AFTERNOON YES class.":
+    if text in ("I attend a MORNING BTC course, so I will only be enrolling in an AFTERNOON YES class.",
+                "I am enrolled in a morning BTC class"
+    ):
         return "Morning"
-    if text == "I attend a AFTERNOON BTC course, so I will only be enrolling in a MORNING YES class.":
+    if text in (
+        "I attend a AFTERNOON BTC course, so I will only be enrolling in a MORNING YES class.",
+        "I have an afternoon BTC class.  I am ready to submit."
+    ):
         return "Afternoon"
 
     return "None"
