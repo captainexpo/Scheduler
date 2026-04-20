@@ -341,6 +341,7 @@ class LPSorter:
                     <= course.capacity
                 )
 
+
             return model
 
         def preference_objective() -> pulp.LpAffineExpression:
@@ -463,14 +464,14 @@ class LPSorter:
                     c_dist[i0] += 0.5
                     if i0 <= 2:
                         top_3 += 1
-                else:
+                elif student.available_times[0]:
                     c_dist[-1] += 0.5
                 if student.half_courses[1] is not None:
                     i1 = student.prefs[CourseType.AFTERNOON].index(c[1])
                     c_dist[i1] += 0.5
                     if i1 <= 2 and i0 > 2:
                         top_3 += 1
-                else:
+                elif student.available_times[1]:
                     c_dist[-1] += 0.5
             else:
                 c_dist[-1] += 1
