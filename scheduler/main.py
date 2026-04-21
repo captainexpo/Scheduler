@@ -7,22 +7,11 @@ def main(
     classes_csv: str,
     output_file: str,
     algorithm: str = "greedy",
-    ga_population: int = 60,
-    ga_generations: int = 60,
-    ga_mutation: float = 0.08,
-    ga_seed: int | None = None,
 ):
     raw_data: data.RawData = dataloader.load_data(student_csv, classes_csv)
 
-    if algorithm == "ga":
-        import scheduler.ga_sorter as ga_sorter
-        s = ga_sorter.GASorter(
-            population_size=ga_population,
-            generations=ga_generations,
-            mutation_rate=ga_mutation,
-            seed=ga_seed,
-        )
-    elif algorithm == "lp":
+
+    if algorithm == "lp":
         from scheduler.lp_sorter import LPSorter
         s = LPSorter()
     else:
@@ -44,33 +33,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--algorithm",
-        choices=["ga", "lp"],
-        default="greedy",
+        choices=["lp"],
+        default="lp",
         help="Scheduling algorithm to use",
-    )
-    parser.add_argument(
-        "--ga-population",
-        default=60,
-        type=int,
-        help="GA population size (only used with --algorithm ga)",
-    )
-    parser.add_argument(
-        "--ga-generations",
-        default=60,
-        type=int,
-        help="GA generation count (only used with --algorithm ga)",
-    )
-    parser.add_argument(
-        "--ga-mutation",
-        default=0.08,
-        type=float,
-        help="GA mutation rate in [0, 1] (only used with --algorithm ga)",
-    )
-    parser.add_argument(
-        "--ga-seed",
-        default=None,
-        type=int,
-        help="Random seed for GA reproducibility (only used with --algorithm ga)",
     )
     args = parser.parse_args()
 
@@ -79,8 +44,4 @@ if __name__ == "__main__":
         args.classes,
         args.output,
         algorithm=args.algorithm,
-        ga_population=args.ga_population,
-        ga_generations=args.ga_generations,
-        ga_mutation=args.ga_mutation,
-        ga_seed=args.ga_seed,
     )
