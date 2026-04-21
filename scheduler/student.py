@@ -15,6 +15,7 @@ def index_def(ls: list[Any], elem: Any, default: Any = -1) -> int:
 class Student:
     first_name: str
     last_name: str
+    email: str
     course_type_pref: "CourseType"
     prefs: dict["CourseType", list["Course"]]
     available_times: tuple[bool, bool]
@@ -26,6 +27,7 @@ class Student:
         first_name: str,
         last_name: str,
         grade: str,
+        email: str,
         course_type_pref: "CourseType",
         available_times: tuple[bool, bool],  # (morning, afternoon) for BTC students
         prefs: dict["CourseType", list["Course"]],
@@ -36,6 +38,7 @@ class Student:
         self.first_name = first_name
         self.last_name = last_name
         self.grade = grade
+        self.email = email
         self.course_type_pref = course_type_pref
         self.available_times = available_times
         self._full_course = None  # type: Course | None

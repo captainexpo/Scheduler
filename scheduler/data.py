@@ -38,7 +38,7 @@ class RawData:
             return self.__str__()
         elif format == "csv":
             writer = CSVWriter()
-            writer.write_header("First Name,Last Name,Grade,BTC/CTE,Course Type Preference,Full Course,Half Course 1,Half Course 2,Preference #,Is Unsorted")
+            writer.write_header("First Name,Last Name,Email Address,Grade,BTC/CTE,Course Type Preference,Full Course,Half Course 1,Half Course 2,Preference #,Is Unsorted")
             for student in sorted(self.students, key=lambda s: s.last_name):
                 full_course = student.full_course.name if student.full_course else ""
                 half_course_1 = student.half_courses[0].name if student.half_courses[0] else ""
@@ -73,6 +73,7 @@ class RawData:
                 writer.write(student.first_name)
                 writer.write(student.last_name)
                 writer.write(student.grade)
+                writer.write(student.email)
                 writer.write(btc_cte_time)
                 writer.write(student.course_type_pref.name)
                 writer.write(full_course)

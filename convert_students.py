@@ -80,6 +80,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
         "Timestamp",
         "First Name",
         "Last Name",
+        "Email",
         "Grade",
         "Pref Class Type",
         "CTE or BTC",
@@ -167,6 +168,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
             timestamp = get_value(row, "Timestamp")
             first_name = get_value(row, "First Name")
             last_name = get_value(row, "Last Name")
+            email = get_value(row, "Email Address")
             grade = clean_grade(get_value(row, "Grade", "Current Grade"))
             pref_type = parse_preference_type(
                 get_value(
@@ -196,6 +198,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
                 "Timestamp": timestamp,
                 "First Name": first_name,
                 "Last Name": last_name,
+                "Email": email,
                 "Grade": grade,
                 "Pref Class Type": pref_type,
                 "CTE or BTC": btc_cte_time,
