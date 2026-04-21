@@ -126,6 +126,7 @@ class LPSorter:
         full_vars = build_assignment_vars(
             full_students, CourseType.FULL, CourseType.FULL, "full"
         )
+
         morning_vars = build_assignment_vars(
             half_students,
             CourseType.MORNING,
@@ -133,6 +134,7 @@ class LPSorter:
             "morning",
             availability_index=0,
         )
+
         afternoon_vars = build_assignment_vars(
             half_students,
             CourseType.AFTERNOON,

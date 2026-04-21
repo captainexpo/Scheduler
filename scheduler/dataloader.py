@@ -42,10 +42,13 @@ students_actual: dict[tuple[str, str, str], tuple[Student,datetime]] = {}
 def load_student(row: list[str]) -> Optional[Student]:
     timestamp = datetime.strptime(row[0], "%m/%d/%Y %H:%M:%S") # google forms timestamp
 
+
     row = row[1:]
     first_name = row[0]
     last_name = row[1]
     grade = row[2]
+    email = row[3]
+    row = row[1:] # HACK: so I don't have to change all the rest of the indices after adding the email. Should change in the future
 
     if (first_name, last_name, grade) in students_actual:
         print(f"Duplicate {first_name} {last_name} grade {grade}")
@@ -74,6 +77,7 @@ def load_student(row: list[str]) -> Optional[Student]:
         first_name,
         last_name,
         grade,
+        email,
         CourseType[course_type_pref.replace(" ", "_").upper()],
         available_times,
         prefs,
