@@ -376,6 +376,18 @@ class LPSorter:
                 )
             )
 
+        def flex_preference_objective() -> pulp.LpAffineExpression:
+            return pulp.lpSum(
+                (
+                    flex_full_mode[student]
+                    if student.flex_pref == CourseType.FULL
+                    else 1 - flex_full_mode[student]
+                    if student.flex_pref == CourseType.HALF
+                    else 0
+                )
+                for student in flex_students
+            )
+
 
         def unsorted_objective() -> pulp.LpAffineExpression:
             return (
@@ -408,6 +420,18 @@ class LPSorter:
         model = build_model()
         model += unsorted_objective() == best_unsorted
         model += preference_objective()
+        model.solve(pulp.PULP_CBC_CMD(msg=True))
+
+        best_preference_value = pulp.value(preference_objective())
+        best_preference = 0
+        if isinstance(best_preference_value, (int, float)):
+            best_preference = int(round(best_preference_value))
+
+        # Stage 3: keep the best preference score and use flex preference as a tie-breaker.
+        model = build_model()
+        model += unsorted_objective() == best_unsorted
+        model += preference_objective() == best_preference
+        model += flex_preference_objective()
         model.solve(pulp.PULP_CBC_CMD(msg=True))
 
         full_unsorted_count, half_unsorted_count = assign_solution()

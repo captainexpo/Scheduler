@@ -1,0 +1,4 @@
+Name
+Teacher
+Capacity
+Type

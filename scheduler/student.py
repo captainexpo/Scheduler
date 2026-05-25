@@ -15,12 +15,19 @@ def index_def(ls: list[Any], elem: Any, default: Any = -1) -> int:
 class Student:
     first_name: str
     last_name: str
+    grade: str
     email: str
+
     course_type_pref: "CourseType"
+
+    # list of courses in order of preference for each course type
     prefs: dict["CourseType", list["Course"]]
+
+    # used for when someone has CTE/BTC in the morning or afternoon
     available_times: tuple[bool, bool]
-    # full_course: "Course" = None
-    # half_courses: list["Course"] = [None, None]
+
+    # for if the student has "no preference" for the course type, but they still want to have their full or half courses considered first
+    flex_pref: "CourseType"
 
     def __init__(
         self,
@@ -31,6 +38,7 @@ class Student:
         course_type_pref: "CourseType",
         available_times: tuple[bool, bool],  # (morning, afternoon) for BTC students
         prefs: dict["CourseType", list["Course"]],
+        flex_pref: "CourseType",
     ) -> None:
         if not isinstance(list(prefs.keys())[0], CourseType):
             raise TypeError("prefs must be a dict of CourseType to Course")
@@ -43,6 +51,7 @@ class Student:
         self.available_times = available_times
         self._full_course = None  # type: Course | None
         self._half_courses = [None, None]  # type: list[Course | None]
+        self.flex_pref = flex_pref
 
     @property
     def full_course(self) -> "Course":
@@ -124,7 +133,6 @@ class Student:
             ) / 2
 
     def __str__(self):
-        #
         return f"{self.first_name} {self.last_name}{self.available_times}({self._full_course.name if self._full_course is not None else 'None'})({self._half_courses[0].name if self._half_courses[0] is not None else 'None'})({self._half_courses[1].name if self._half_courses[1] is not None else 'None'})"
 
     def short_str(self):

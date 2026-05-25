@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YES Scheduler</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="header">
+        <h1>YES Scheduler</h1>
+      </div>
+
+      <div class="panel">
+        <div class="panel-inner">
+          <h2>Run a schedule</h2>
+          <form
+            method="post"
+            enctype="multipart/form-data"
+            class="form-grid"
+            data-file-form
+          >
+            <div class="field">
+              <label for="students">Student CSV</label>
+              <input
+                id="students"
+                name="students"
+                type="file"
+                accept=".csv,text/csv"
+                required
+                data-file-input
+                data-target="student-name"
+              />
+              <div class="file-name" id="student-name">No file selected</div>
+            </div>
+            <div class="field">
+              <label for="classes">Class CSV</label>
+              <input
+                id="classes"
+                name="classes"
+                type="file"
+                accept=".csv,text/csv"
+                required
+                data-file-input
+                data-target="class-name"
+              />
+              <div class="file-name" id="class-name">No file selected</div>
+            </div>
+            <div class="field">
+              <label for="algorithm">Algorithm</label>
+              <select id="algorithm" name="algorithm">
+                <option value="lp">LP optimizer</option>
+              </select>
+            </div>
+            <div class="actions">
+              <button class="button primary" type="submit">
+                Generate schedule
+              </button>
+              <a class="button secondary" href="/">Reset</a>
+            </div>
+          </form>
+          {% if error %}
+          <div class="notice error">{{ error }}</div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if result %}
+      <div class="result-grid">
+        <div class="panel">
+          <div class="panel-inner">
+            <h2>Schedule summary</h2>
+            <div class="stats stats-summary">
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.students }}</div>
+                <div class="stat-label">students</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.courses }}</div>
+                <div class="stat-label">courses</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.unsorted }}</div>
+                <div class="stat-label">unsorted students</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.top_3 }}</div>
+                <div class="stat-label">top-3 placements</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.avg_score }}</div>
+                <div class="stat-label">average score</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">{{ result.meta.total_score }}</div>
+                <div class="stat-label">total score</div>
+              </div>
+            </div>
+            <div class="bar-list">
+              {% for entry in result.score_dist %}
+              <div class="bar-row">
+                <div class="bar-head">
+                  <span>{{ entry.label }}</span><span>{{ entry.value }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: {{ entry.width }}%"></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="actions result-actions">
+              <a class="button primary" href="/download/{{ result.token }}"
+                >Download CSV</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-inner">
+            <h2>Preview</h2>
+            <p class="helper">
+              A small sample of the generated assignment file. Use the download
+              link for the full CSV.
+            </p>
+            <div class="preview">
+              <table>
+                <thead>
+                  <tr>
+                    {% for column in result.preview_columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in result.preview_rows %}
+                  <tr>
+                    {% for column in result.preview_columns %}
+                    <td>{{ row.get(column, "") }}</td>
+                    {% endfor %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
