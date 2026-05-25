@@ -1,27 +1,36 @@
 import argparse
+from pathlib import Path
+
 import scheduler.dataloader as dataloader
 import scheduler.data as data
+
+def run_scheduler(
+    student_csv: str,
+    classes_csv: str,
+    algorithm: str = "lp",
+) -> tuple[data.RawData, str]:
+    raw_data: data.RawData = dataloader.load_data(student_csv, classes_csv)
+
+    if algorithm == "lp":
+        from scheduler.lp_sorter import LPSorter
+        sorter = LPSorter()
+    else:
+        raise ValueError(f"Unknown algorithm: {algorithm}")
+
+    sorter.sort(raw_data)
+    solved_data = sorter.get_raw_data()
+    return solved_data, solved_data.as_text_output(format="csv")
+
 
 def main(
     student_csv: str,
     classes_csv: str,
     output_file: str,
-    algorithm: str = "greedy",
+    algorithm: str = "lp",
 ):
-    raw_data: data.RawData = dataloader.load_data(student_csv, classes_csv)
-
-
-    if algorithm == "lp":
-        from scheduler.lp_sorter import LPSorter
-        s = LPSorter()
-    else:
-        raise ValueError(f"Unknown algorithm: {algorithm}")
-    
-    s.sort(raw_data)
-    raw_data = s.get_raw_data()
-    print(raw_data.meta)
-    with open(output_file, "w") as f:
-        f.write(raw_data.as_text_output(format='csv'))
+    solved_data, csv_output = run_scheduler(student_csv, classes_csv, algorithm=algorithm)
+    print(solved_data.meta)
+    Path(output_file).write_text(csv_output)
 
 
 if __name__ == "__main__":

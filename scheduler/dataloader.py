@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import os
 from typing import Optional
 from scheduler.data import RawData
 from scheduler.course import Course, CourseType
@@ -28,6 +29,7 @@ def remove_pref_duplicates(prefs: list[Course]) -> list[Course]:
             unique_prefs.append(pref)
     return unique_prefs
 
+
 def parse_course_type_pref(pref: str) -> CourseType:
     if "Half" in pref:
         return CourseType.HALF
@@ -36,19 +38,19 @@ def parse_course_type_pref(pref: str) -> CourseType:
     else:
         return CourseType.HALF
 
+
 # (first_name, last_name, grade) -> (student, timestamp)
-students_actual: dict[tuple[str, str, str], tuple[Student,datetime]] = {}
-
-def load_student(row: list[str]) -> Optional[Student]:
-    timestamp = datetime.strptime(row[0], "%m/%d/%Y %H:%M:%S") # google forms timestamp
+students_actual: dict[tuple[str, str, str], tuple[Student, datetime]] = {}
 
 
-    row = row[1:]
-    first_name = row[0]
-    last_name = row[1]
-    grade = row[2]
-    email = row[3]
-    row = row[1:] # HACK: so I don't have to change all the rest of the indices after adding the email. Should change in the future
+def load_student(format: list[str], row: list[str]) -> Optional[Student]:
+    timestamp = datetime.strptime(row[0], "%m/%d/%Y %H:%M:%S")  # google forms timestamp
+
+    # row = row[1:]
+    first_name = row[format.index("First Name")]
+    last_name = row[format.index("Last Name")]
+    grade = row[format.index("Grade")]
+    email = row[format.index("Email")]
 
     if (first_name, last_name, grade) in students_actual:
         print(f"Duplicate {first_name} {last_name} grade {grade}")
@@ -56,11 +58,23 @@ def load_student(row: list[str]) -> Optional[Student]:
         if timestamp <= existing_timestamp:
             return None
 
-    course_type_pref = row[3]
-    available_times = (row[4] != "Morning", row[4] != "Afternoon")
-    morning_prefs = row[5:10]
-    afternoon_prefs = row[10:15]
-    full_prefs = row[15:20]
+    course_type_pref = row[format.index("Pref Class Type")]
+    btc_cte_time = row[format.index("CTE or BTC")]
+    available_times = (btc_cte_time != "Morning", btc_cte_time != "Afternoon")
+    morning_prefs = row[format.index("Morning Pref 1"):format.index("Morning Pref 5") + 1]
+    afternoon_prefs = row[format.index("Afternoon Pref 1"):format.index("Afternoon Pref 5") + 1]
+    full_prefs = row[format.index("Full Pref 1"):format.index("Full Pref 5") + 1]
+
+    flex_pref_str = row[format.index("Flex Pref")]
+    flex_pref = CourseType.NO_PREFERENCE
+    if flex_pref_str == "Half":
+        flex_pref = CourseType.HALF
+    elif flex_pref_str == "Full":
+        flex_pref = CourseType.FULL
+    else:
+        flex_pref = CourseType.NO_PREFERENCE
+
+
     prefs = {
         CourseType.MORNING: remove_pref_duplicates(
             [courses[i] for i in morning_prefs if i != ""]
@@ -81,6 +95,7 @@ def load_student(row: list[str]) -> Optional[Student]:
         CourseType[course_type_pref.replace(" ", "_").upper()],
         available_times,
         prefs,
+        flex_pref,
     )
 
     students_actual[(first_name, last_name, grade)] = (student, timestamp)
@@ -89,6 +104,18 @@ def load_student(row: list[str]) -> Optional[Student]:
 
 
 def load_data(student_csv: str, classes_csv: str) -> RawData:
+    courses.clear()
+    students_actual.clear()
+
+    student_format = (
+        open(
+            os.path.join(os.path.dirname(__file__), "../fmts/student_format.txt"),
+            "r",
+        )
+        .read()
+        .split("\n")
+    )
+
     students: list[Student] = []
     _courses: list[Course] = []
     with open(classes_csv, "r") as f:
@@ -103,13 +130,14 @@ def load_data(student_csv: str, classes_csv: str) -> RawData:
         reader = csv.reader(f)
         next(reader)
         for row in reader:
-            _ = load_student(row) # we only care about the latest submission for each student, so we can ignore the return value for now
+            _ = load_student(
+                student_format,
+                row
+            )  # we only care about the latest submission for each student, so we can ignore the return value for now
 
     print(len(students_actual), "students loaded")
     for student, _ in students_actual.values():
         students.append(student)
-
-
 
     d = RawData(students, _courses)
     return d

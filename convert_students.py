@@ -36,7 +36,6 @@ def parse_preference_type(pref_str: str) -> str:
     else:
         return "Half"
 
-
 def parse_btc_cte(text: str) -> str:
     """Extract BTC/CTE time from advisory teacher field or similar.
 
@@ -71,6 +70,17 @@ def is_comment_row(value: str) -> bool:
 
     return any(comment.lower() in value.lower() for comment in comments)
 
+def parse_flex_pref(flex_pref_str: str) -> str:
+    if "half" in flex_pref_str.lower():
+        return "Half"
+    if "full" in flex_pref_str.lower():
+        return "Full"
+    if flex_pref_str == "I am open to the course I get assigned to based on my selections.":
+        return "No Preference"
+    if flex_pref_str == "This question does not apply to me.":
+        return "N/A"
+    print("[WARNING] Unrecognized preference type:", flex_pref_str)
+    return "N/A"
 
 def convert_csv(input_path: str, output_path: str) -> None:
     """Convert Google Form CSV to scheduler format."""
@@ -83,6 +93,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
         "Email",
         "Grade",
         "Pref Class Type",
+        "Flex Pref",
         "CTE or BTC",
         "Morning Pref 1",
         "Morning Pref 2",
@@ -104,12 +115,12 @@ def convert_csv(input_path: str, output_path: str) -> None:
     with open(input_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
-        def get_value(row: dict[str, str], *keys: str) -> str:
+        def get_value(row: dict[str, str], *keys: str, default: str = "") -> str:
             for key in keys:
                 value = row.get(key, "")
                 if value and value.strip():
                     return value.strip()
-            return ""
+            return default
 
         def collect_values(row: dict[str, str], keys: list[str]) -> list[str]:
             values: list[str] = []
@@ -170,6 +181,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
             last_name = get_value(row, "Last Name")
             email = get_value(row, "Email Address")
             grade = clean_grade(get_value(row, "Grade", "Current Grade"))
+            flex_pref = parse_flex_pref(get_value(row, "Flex Pref", default="I am open to the course I get assigned to based on my selections."))
             pref_type = parse_preference_type(
                 get_value(
                     row,
@@ -201,6 +213,7 @@ def convert_csv(input_path: str, output_path: str) -> None:
                 "Email": email,
                 "Grade": grade,
                 "Pref Class Type": pref_type,
+                "Flex Pref": flex_pref,
                 "CTE or BTC": btc_cte_time,
                 "Morning Pref 1": morning_prefs[0],
                 "Morning Pref 2": morning_prefs[1],

@@ -1,0 +1,23 @@
+Timestamp
+First Name
+Last Name
+Email
+Grade
+Pref Class Type
+Flex Pref
+CTE or BTC
+Morning Pref 1
+Morning Pref 2
+Morning Pref 3
+Morning Pref 4
+Morning Pref 5
+Afternoon Pref 1
+Afternoon Pref 2
+Afternoon Pref 3
+Afternoon Pref 4
+Afternoon Pref 5
+Full Pref 1
+Full Pref 2
+Full Pref 3
+Full Pref 4
+Full Pref 5
