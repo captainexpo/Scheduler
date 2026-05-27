@@ -88,3 +88,12 @@ class Course:
 
     def __repr__(self) -> str:
         return f"{self.name}({self.teacher}){self.type.name}"
+
+    def to_json(self) -> dict:
+        return {
+            "name": self.name,
+            "teacher": self.teacher,
+            "capacity": self.capacity,
+            "type": self.type.name,
+            "students": [student.short_str() for student in self.students],
+        }
