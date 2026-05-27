@@ -136,8 +136,26 @@ class Student:
         return f"{self.first_name} {self.last_name}{self.available_times}({self._full_course.name if self._full_course is not None else 'None'})({self._half_courses[0].name if self._half_courses[0] is not None else 'None'})({self._half_courses[1].name if self._half_courses[1] is not None else 'None'})"
 
     def short_str(self):
-        return f"{self.first_name}_{self.last_name}({self.score()})"
+        return f"{self.first_name}_{self.last_name}({self.grade})({self.email})"
 
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "grade": self.grade,
+            "email": self.email,
+            "course_type_pref": self.course_type_pref.value,
+            "available_times": self.available_times,
+            "prefs": {
+                course_type.value: [course.name for course in courses]
+                for course_type, courses in self.prefs.items()
+            },
+            "flex_pref": self.flex_pref.value,
+            "_full_course": self.full_course.name if self.full_course is not None else None,
+            "_half_courses": [
+                course.name if course is not None else None for course in self.half_courses
+            ],
+        }
 
 if True:
     from scheduler.course import Course, CourseType

@@ -91,3 +91,19 @@ class RawData:
 
     def __repr__(self) -> str:
         return self.__str__()
+
+    def as_json(self) -> dict[str, Any]:
+        return {
+            "students": [student.to_json() for student in self.students],
+            "courses": [
+                {
+                    "name": course.name,
+                    "teacher": course.teacher,
+                    "capacity": course.capacity,
+                    "type": course.type.value,
+                    "students": [student.short_str() for student in course.students],
+                }
+                for course in self.courses
+            ],
+            "meta": self.meta,
+        }

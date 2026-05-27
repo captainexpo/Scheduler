@@ -15,15 +15,25 @@ app = Flask(__name__)
 
 _RESULTS: dict[str, dict[str, object]] = {}
 
+
 def _temp_file_from_upload(upload) -> str:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(upload.filename or "upload.csv").suffix or ".csv") as tmp:
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=Path(upload.filename or "upload.csv").suffix or ".csv"
+    ) as tmp:
         upload.save(tmp)
         return tmp.name
 
 
 def _build_score_dist(meta: dict[str, object]) -> list[dict[str, object]]:
     raw_dist = meta.get("score_dist", [])
-    labels = ["1st choice", "2nd choice", "3rd choice", "4th choice", "5th choice", "Unsorted"]
+    labels = [
+        "1st choice",
+        "2nd choice",
+        "3rd choice",
+        "4th choice",
+        "5th choice",
+        "Unsorted",
+    ]
     values: list[float] = []
     for item in raw_dist if isinstance(raw_dist, list) else []:
         if isinstance(item, (int, float)):
@@ -46,11 +56,13 @@ def _build_preview(csv_output: str) -> tuple[list[str], list[dict[str, str]]]:
     for row in reader:
         rows.append(row)
         # if len(rows) >= 25:
-            # break
+        # break
     return columns, rows
 
 
-def _render_page(*, error: str | None = None, result: dict[str, object] | None = None) -> str:
+def _render_page(
+    *, error: str | None = None, result: dict[str, object] | None = None
+) -> str:
     return render_template("index.html", error=error, result=result)
 
 
@@ -63,6 +75,11 @@ def index() -> str:
 def run_schedule() -> str:
     students_upload = request.files.get("students")
     classes_upload = request.files.get("classes")
+
+    # desired grade mixing weight
+    mixing_weight = request.form.get("mixing_weight", "1.0")
+    print(f"Received mixing weight: {mixing_weight}")
+
     algorithm = request.form.get("algorithm", "lp")
 
     if not students_upload or not students_upload.filename:
@@ -74,7 +91,12 @@ def run_schedule() -> str:
     class_path = _temp_file_from_upload(classes_upload)
 
     try:
-        solved_data, csv_output = run_scheduler(student_path, class_path, algorithm=algorithm)
+        solved_data, csv_output = run_scheduler(
+            student_path,
+            class_path,
+            algorithm=algorithm,
+            lp_opts={"grade_mixing_weight": float(mixing_weight)},
+        )
         token = uuid.uuid4().hex
         preview_columns, preview_rows = _build_preview(csv_output)
         result = {
@@ -115,3 +137,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
