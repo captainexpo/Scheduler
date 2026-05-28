@@ -53,3 +53,4 @@ out.txt
 data/
 output/
 *.csv
+out.json
